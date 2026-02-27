@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LevelUp IA - Accès Prioritaire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
+            authDomain: "levelup-ia.firebaseapp.com",
+            projectId: "levelup-ia",
+            storageBucket: "levelup-ia.firebasestorage.app",
+            messagingSenderId: "229420004282",
+            appId: "1:229420004282:web:6735f059a947f0936ae383",
+            measurementId: "G-MSRDY2574K"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        const currentAppId = "levelup-ia";
+
+        const pageLogin = document.getElementById('page-login');
+        const pageConfirm = document.getElementById('page-confirm');
+        const pageKey = document.getElementById('page-key');
+        const googleBtn = document.getElementById('google-btn');
+        const generateBtn = document.getElementById('generate-btn');
+        const userKeyText = document.getElementById('user-key');
+        const timerText = document.getElementById('timer');
+        const userNameText = document.getElementById('user-name');
+        const securityNotice = document.getElementById('security-notice');
+
+        let countdownInterval;
+
+        googleBtn.addEventListener('click', async () => {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                userNameText.innerText = result.user.displayName;
+                showPage(pageConfirm);
+            } catch (error) {
+                console.error("Erreur Auth:", error);
+            }
+        });
+
+        generateBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            generateBtn.disabled = true;
+            generateBtn.innerText = "Sécurisation du profil...";
+
+            try {
+                const userRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'early_access', user.uid);
+                const userDoc = await getDoc(userRef);
+
+                let accessKey;
+                if (userDoc.exists()) {
+                    accessKey = userDoc.data().accessKey;
+                } else {
+                    accessKey = 'LU-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                    await setDoc(userRef, {
+                        userId: user.uid,
+                        email: user.email,
+                        accessKey: accessKey,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+
+                userKeyText.innerText = accessKey;
+                showPage(pageKey);
+                startTimer(180); 
+            } catch (error) {
+                console.error("Erreur Firestore:", error);
+                generateBtn.disabled = false;
+                generateBtn.innerText = "Réessayer";
+            }
+        });
+
+        function showPage(page) {
+            [pageLogin, pageConfirm, pageKey].forEach(p => p.classList.add('hidden'));
+            page.classList.remove('hidden');
+        }
+
+        function startTimer(seconds) {
+            clearInterval(countdownInterval);
+            let timeLeft = seconds;
+            countdownInterval = setInterval(() => {
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                timerText.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    userKeyText.innerText = "EXPIRÉ";
+                    userKeyText.classList.add('text-red-500');
+                    securityNotice.innerHTML = `
+                        <div class="p-4 bg-red-50/80 backdrop-blur-sm rounded-2xl border border-red-100 mt-4 text-left animate-[fadeIn_0.5s]">
+                            <p class="text-red-700 font-bold text-xs mb-1">Sécurité activée</p>
+                            <p class="text-[10px] text-red-600 leading-tight">
+                                Par mesure de protection, votre clé a été masquée. 
+                                <strong>C'est votre identifiant unique :</strong> vous ne pourrez pas en obtenir d'autre. 
+                                Si vous ne l'avez pas notée, rafraîchissez la page pour la réafficher temporairement.
+                            </p>
+                        </div>
+                    `;
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        window.copyKey = () => {
+            const text = userKeyText.innerText;
+            if (text === "EXPIRÉ" || text === "...") return;
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            const copyBtn = document.querySelector('.copy-btn');
+            copyBtn.innerText = "Copié !";
+            setTimeout(() => copyBtn.innerText = "Copier l'ID", 2000);
+        };
+
+        lucide.createIcons();
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: linear-gradient(-45deg, #f8fafc, #eff6ff, #f1f5f9, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .star-anim {
+            animation: rotate-360 4s linear infinite, colorShift 8s ease-in-out infinite;
+        }
+
+        @keyframes rotate-360 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes colorShift {
+            0%, 100% { fill: #3b82f6; filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5)); }
+            33% { fill: #6366f1; filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.5)); }
+            66% { fill: #06b6d4; filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5)); }
+        }
+
+        .text-levelup { color: #1e40af; }
+        .text-ia { color: #3b82f6; }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-6 text-slate-900">
+
+    <div class="w-full max-w-sm">
+        <!-- Logo avec étoile magique -->
+        <div class="flex items-center justify-center gap-3 mb-10">
+            <h1 class="text-3xl font-black text-levelup tracking-tighter">LevelUp <span class="text-ia">IA</span></h1>
+            <div class="star-anim">
+                <svg width="32" height="32" viewBox="0 0 24 24"><path d="M12 2L14.81 8.62L22 9.24L16.5 13.97L18.18 21L12 17.27L5.82 21L7.5 13.97L2 9.24L9.19 8.62L12 2Z" /></svg>
+            </div>
+        </div>
+
+        <!-- Warning Dev -->
+        <div class="glass-card rounded-2xl p-4 mb-8 text-center animate-[fadeIn_0.5s] shadow-sm">
+            <p class="text-[11px] font-bold text-blue-700 uppercase tracking-widest mb-1">Status: Développement Alpha</p>
+            <p class="text-[10px] text-slate-500 leading-tight">L'écosystème LevelUp IA est en cours de déploiement. Votre place est réservée.</p>
+        </div>
+
+        <!-- PAGE 1 : CONNEXION -->
+        <div id="page-login" class="space-y-8 animate-[fadeIn_0.5s]">
+            <div class="text-center">
+                <h2 class="text-2xl font-black mb-2 tracking-tight">Accès Prioritaire</h2>
+                <p class="text-slate-400 text-sm">Authentifiez-vous pour sécuriser votre identifiant unique.</p>
+            </div>
+            <button id="google-btn" class="w-full flex items-center justify-center gap-3 py-4 px-4 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 transition-all font-bold shadow-xl shadow-slate-100/50 group">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20" alt="Google" class="group-hover:scale-110 transition-transform">
+                Réserver avec Google
+            </button>
+        </div>
+
+        <!-- PAGE 2 : CONFIRMATION -->
+        <div id="page-confirm" class="hidden space-y-8 animate-[fadeIn_0.5s] text-center">
+            <div>
+                <h2 class="text-2xl font-black mb-1 tracking-tight">Bienvenue, <br><span id="user-name" class="text-blue-600">Ami</span></h2>
+                <p class="text-slate-400 text-sm mt-3 px-4 leading-relaxed">Le système est prêt. Générez votre code pour finaliser la réservation.</p>
+            </div>
+            <button id="generate-btn" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 active:scale-95">
+                CRÉER MON CODE UNIQUE
+            </button>
+        </div>
+
+        <!-- PAGE 3 : CLÉ -->
+        <div id="page-key" class="hidden space-y-6 animate-[fadeIn_0.5s]">
+            <div class="glass-card border-2 border-dashed border-blue-200 rounded-[32px] p-8 text-center relative overflow-hidden shadow-2xl shadow-blue-100/50">
+                <div class="absolute top-0 right-0 p-4">
+                    <div class="bg-blue-600 text-white text-[10px] font-black px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-blue-200">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                        <span id="timer">3:00</span>
+                    </div>
+                </div>
+                
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-6">Identifiant Personnel</p>
+                
+                <div id="user-key" class="text-3xl font-mono font-black text-blue-800 tracking-tighter mb-8 drop-shadow-sm">...</div>
+                
+                <button onclick="copyKey()" class="copy-btn w-full py-3.5 bg-white border border-slate-100 rounded-2xl text-sm font-black text-slate-700 flex items-center justify-center gap-2 hover:bg-slate-50 hover:shadow-md transition-all active:scale-95">
+                    <i data-lucide="copy" class="w-4 h-4 text-blue-500"></i> Copier l'ID
+                </button>
+            </div>
+            
+            <div id="security-notice" class="text-center space-y-4 px-2">
+                <p class="text-[11px] font-semibold text-slate-500 leading-relaxed">
+                    <span class="text-blue-600 font-bold underline decoration-blue-200 underline-offset-4">Important :</span> Ce code est lié à vie à votre compte Google. Vous n'en recevrez jamais d'autre.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer Decoration -->
+        <div class="mt-12 text-center">
+            <div class="inline-flex gap-2">
+                <div class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div>
+                <div class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse [animation-delay:0.2s]"></div>
+                <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse [animation-delay:0.4s]"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
