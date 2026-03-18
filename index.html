@@ -28,20 +28,28 @@
         @keyframes rotate360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         .blur-secure {
-            filter: blur(8px);
+            filter: blur(12px);
             user-select: none;
-            opacity: 0.5;
+            opacity: 0.3;
             transition: all 1s ease-in-out;
         }
         
-        /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.5s ease forwards; }
+
+        #debugConsole {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
     </style>
 </head>
-<body class="p-4 md:p-10 flex items-center justify-center">
+<body class="p-4 md:p-10 flex flex-col items-center">
 
-    <div class="w-full max-w-lg mx-auto">
+    <div class="w-full max-w-lg mx-auto flex-1 flex flex-col justify-center">
         <!-- Header -->
         <header class="flex items-center justify-center gap-4 mb-10">
             <i class="fas fa-star text-3xl star-logo"></i>
@@ -62,7 +70,7 @@
                 </svg>
             </div>
             <h2 class="text-xl font-bold">Identifiez-vous</h2>
-            <p class="text-xs text-white/50">Vous devez vous connecter avec Google pour générer ou récupérer votre clé d'accès unique.</p>
+            <p class="text-xs text-white/50">Utilisez votre compte Google pour accéder à votre clé système.</p>
             
             <button id="googleLoginBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-gray-200 transition-all transform active:scale-95 flex items-center justify-center gap-3">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -78,87 +86,79 @@
         <!-- Vue Chargement -->
         <div id="loadingView" class="hidden glass p-10 rounded-3xl text-center space-y-4 fade-in">
             <i class="fas fa-circle-notch fa-spin text-3xl text-purple-500"></i>
-            <p class="text-xs font-bold uppercase tracking-widest text-white/50">Vérification de l'identité...</p>
+            <p id="loadingText" class="text-[10px] font-bold uppercase tracking-widest text-white/50">Vérification...</p>
         </div>
 
         <!-- Vue Utilisateur Connecté -->
         <div id="appView" class="hidden space-y-6 fade-in">
-            
-            <!-- User Info Bar -->
             <div class="glass px-6 py-4 rounded-2xl flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <img id="userAvatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-purple-500/30">
                     <div class="flex flex-col">
-                        <span id="userName" class="text-xs font-bold">Utilisateur</span>
-                        <span class="text-[9px] text-green-400 uppercase tracking-widest">Connecté</span>
+                        <span id="userName" class="text-xs font-bold truncate max-w-[120px]">Utilisateur</span>
+                        <span class="text-[8px] text-green-400 uppercase tracking-widest">Compte Vérifié</span>
                     </div>
                 </div>
-                <button id="logoutBtn" class="text-[10px] text-white/30 hover:text-red-400 uppercase font-bold tracking-widest transition-all">
-                    Déconnexion
-                </button>
+                <button id="logoutBtn" class="text-[9px] text-white/30 hover:text-red-400 uppercase font-bold tracking-widest">Quitter</button>
             </div>
 
-            <!-- Action Area (Generate OR View Key) -->
             <div class="glass p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
-                <!-- Décoration -->
-                <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-[50px] rounded-full"></div>
-
-                <!-- Section: Aucune clé -->
-                <div id="noKeySection" class="hidden space-y-6 relative z-10">
-                    <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-lock text-2xl text-white/20"></i>
+                <div id="noKeySection" class="hidden space-y-6">
+                    <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto">
+                        <i class="fas fa-plus text-xl text-purple-500"></i>
                     </div>
-                    <h3 class="text-lg font-bold">Générer votre Accès</h3>
-                    <p class="text-xs text-white/50 px-4">Ceci créera votre clé d'accès unique pour utiliser Thiab's IA. Cette clé sera liée définitivement à votre compte.</p>
-                    
-                    <button id="generateBtn" class="w-full bg-purple-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-purple-500 transition-all transform active:scale-95 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-                        Générer ma clé unique
+                    <div>
+                        <h3 class="text-lg font-bold">Initialiser l'Accès</h3>
+                        <p class="text-[10px] text-white/40 mt-1 uppercase tracking-wide">Une seule clé par compte Google</p>
+                    </div>
+                    <button id="generateBtn" class="w-full bg-purple-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-purple-500 transition-all shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+                        Générer maintenant
                     </button>
                 </div>
 
-                <!-- Section: Clé Existante -->
-                <div id="hasKeySection" class="hidden space-y-6 relative z-10">
-                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Votre Clé d'Accès Unique</h3>
+                <div id="hasKeySection" class="hidden space-y-6">
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Identifiant Unique</h3>
                     
-                    <div class="bg-black/50 border border-purple-500/30 p-6 rounded-2xl relative group">
-                        <!-- Clé affichée -->
-                        <p id="myKeyDisplay" class="text-xl md:text-2xl font-mono font-bold tracking-widest text-purple-400 transition-all duration-1000">
-                            THB-XXXX-XXXX
-                        </p>
-                        
-                        <!-- Overlay quand flouté -->
-                        <div id="blurOverlay" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-1000">
-                            <span class="text-[10px] bg-black/80 px-3 py-1 rounded-full uppercase tracking-widest border border-white/10 text-white/70">
-                                <i class="fas fa-eye-slash mr-1"></i> Masqué par sécurité
-                            </span>
+                    <div class="bg-black/40 border border-purple-500/20 p-6 rounded-2xl relative overflow-hidden">
+                        <p id="myKeyDisplay" class="text-xl font-mono font-bold tracking-widest text-purple-400">---</p>
+                        <div id="blurOverlay" class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 pointer-events-none transition-opacity duration-700">
+                            <span class="text-[9px] uppercase tracking-widest text-white/60 border border-white/10 px-3 py-1 rounded-full bg-black/40 backdrop-blur-sm">Masqué</span>
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-3">
-                        <button id="copyBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-copy"></i> Copier ma clé
+                    <div class="space-y-4">
+                        <button id="copyBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                            <i class="fas fa-copy"></i> Copier la clé
                         </button>
-                        <p id="timerText" class="text-[9px] text-white/30 uppercase tracking-widest">
-                            Sera masquée dans <span id="timeRemaining">3:00</span>
+                        <p id="timerText" class="text-[8px] text-white/20 uppercase font-bold tracking-[0.2em]">
+                            Protection dans <span id="timeRemaining" class="text-white/60">03:00</span>
                         </p>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hidden z-50 shadow-[0_10px_40px_rgba(255,255,255,0.2)]">
-        Clé copiée !
+    <!-- Debug Console (Visible for dev) -->
+    <div class="w-full max-w-lg mt-6">
+        <div class="flex items-center justify-between mb-2 px-2">
+            <span class="text-[8px] font-black uppercase text-white/20 tracking-widest">Logs Système</span>
+            <button onclick="document.getElementById('debugLog').innerHTML = ''" class="text-[8px] text-white/20 hover:text-white uppercase font-bold">Effacer</button>
+        </div>
+        <div id="debugConsole" class="rounded-xl p-3 glass">
+            <div id="debugLog" class="text-white/40 space-y-1">
+                <div>[System] Prêt pour l'initialisation...</div>
+            </div>
+        </div>
     </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hidden z-50 shadow-2xl">Copié !</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // Configuration fournie par tes soins
         const firebaseConfig = {
             apiKey: "AIzaSyAFNuErJ2ToXYJ9vg0YwAneeOSty6mtXNg",
             authDomain: "thiab-s-ia.firebaseapp.com",
@@ -174,163 +174,155 @@
         const provider = new GoogleAuthProvider();
         const db = getFirestore(app);
         
+        const appId = "thiab-s-ia-premium";
         let currentUser = null;
-        let actualKey = ""; // Garde la clé en mémoire pour la copie
-        let blurTimeout;
+        let actualKey = "";
         let countdownInterval;
 
-        // UI Elements
-        const loginView = document.getElementById('loginView');
-        const loadingView = document.getElementById('loadingView');
-        const appView = document.getElementById('appView');
-        const noKeySection = document.getElementById('noKeySection');
-        const hasKeySection = document.getElementById('hasKeySection');
-        const myKeyDisplay = document.getElementById('myKeyDisplay');
-        const blurOverlay = document.getElementById('blurOverlay');
-        const timeRemaining = document.getElementById('timeRemaining');
-        const timerText = document.getElementById('timerText');
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('debugLog');
+            const color = type === 'error' ? 'text-red-400' : (type === 'success' ? 'text-green-400' : 'text-white/40');
+            log.innerHTML += `<div class="${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+            document.getElementById('debugConsole').scrollTop = log.scrollHeight;
+        }
 
-        // Écouteur d'état de connexion
+        const views = {
+            login: document.getElementById('loginView'),
+            loading: document.getElementById('loadingView'),
+            app: document.getElementById('appView')
+        };
+
+        function showView(view) {
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            view.classList.remove('hidden');
+        }
+
+        // Monitoring Auth
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
+                addLog(`Utilisateur connecté: ${user.email}`, 'success');
                 document.getElementById('userName').innerText = user.displayName || "Utilisateur";
-                document.getElementById('userAvatar').src = user.photoURL || "https://ui-avatars.com/api/?name=" + (user.displayName || "U") + "&background=a855f7&color=fff";
+                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=a855f7&color=fff`;
                 
-                showView(loadingView);
-                await checkUserKey();
+                showView(views.loading);
+                await checkKey();
             } else {
                 currentUser = null;
-                showView(loginView);
-                resetBlurTimer(); // Nettoyage
+                addLog("Aucune session active.");
+                showView(views.login);
+                if (countdownInterval) clearInterval(countdownInterval);
             }
         });
 
-        // Connexion
-        document.getElementById('googleLoginBtn').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(err => {
-                console.error("Erreur de connexion:", err);
-                showToast("Erreur de connexion");
-            });
-        });
-
-        // Déconnexion
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth);
-        });
-
-        // Vérifie si l'utilisateur a déjà une clé (Respect des rules Firestore)
-        async function checkUserKey() {
+        // Vérification de la clé existante
+        async function checkKey() {
+            if (!currentUser) return;
+            addLog("Vérification de la clé dans Firestore...");
+            
             try {
-                // Chemin sécurisé par tes rules: /artifacts/thiab-s-ia-premium/users/{userId}/security/key_data
-                const keyRef = doc(db, "artifacts", "thiab-s-ia-premium", "users", currentUser.uid, "security", "key_data");
-                const docSnap = await getDoc(keyRef);
+                // Chemin exact des rules: /artifacts/thiab-s-ia-premium/users/{userId}/security/key_data
+                const keyPath = `artifacts/${appId}/users/${currentUser.uid}/security/key_data`;
+                addLog(`Chemin: ${keyPath}`);
+                
+                const keyDoc = await getDoc(doc(db, keyPath));
 
-                if (docSnap.exists()) {
-                    // Il a déjà une clé
-                    actualKey = docSnap.data().key;
-                    displayKeyMode();
+                if (keyDoc.exists()) {
+                    actualKey = keyDoc.data().key;
+                    addLog("Clé trouvée avec succès.");
+                    setupKeyDisplay();
                 } else {
-                    // Pas de clé, on lui propose d'en créer une
-                    showView(appView);
-                    noKeySection.classList.remove('hidden');
-                    hasKeySection.classList.add('hidden');
+                    addLog("Aucune clé trouvée pour ce compte.");
+                    showView(views.app);
+                    document.getElementById('noKeySection').classList.remove('hidden');
+                    document.getElementById('hasKeySection').classList.add('hidden');
                 }
-            } catch (error) {
-                console.error("Erreur Firestore:", error);
-                showToast("Erreur de lecture système");
+            } catch (err) {
+                addLog(`Erreur Firestore: ${err.message}`, 'error');
+                showToast("Erreur de permission Firestore");
             }
         }
 
-        // Génération de la clé
-        document.getElementById('generateBtn').addEventListener('click', async () => {
-            if (!currentUser) return;
-            
+        // Génération
+        document.getElementById('generateBtn').onclick = async () => {
             const btn = document.getElementById('generateBtn');
-            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Création...`;
             btn.disabled = true;
+            btn.innerText = "Génération...";
+            addLog("Tentative de génération d'une nouvelle clé...");
 
-            const randomID = Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-            const fullKey = `THB-${randomID}`;
-
+            const newKey = `THB-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+            
             try {
-                const keyRef = doc(db, "artifacts", "thiab-s-ia-premium", "users", currentUser.uid, "security", "key_data");
-                await setDoc(keyRef, {
-                    key: fullKey,
+                const keyPath = `artifacts/${appId}/users/${currentUser.uid}/security/key_data`;
+                await setDoc(doc(db, keyPath), {
+                    key: newKey,
+                    owner: currentUser.email,
+                    uid: currentUser.uid,
                     createdAt: Date.now()
                 });
-
-                actualKey = fullKey;
-                showToast("Clé générée avec succès !");
-                displayKeyMode();
                 
-            } catch (error) {
-                console.error("Erreur lors de la création:", error);
-                showToast("Erreur de permission");
-                btn.innerHTML = "Générer ma clé unique";
+                actualKey = newKey;
+                addLog(`Clé générée et enregistrée: ${newKey}`, 'success');
+                setupKeyDisplay();
+            } catch (err) {
+                addLog(`Échec de l'écriture: ${err.message}`, 'error');
+                showToast("Erreur de création (Vérifiez les rules)");
                 btn.disabled = false;
+                btn.innerText = "Générer maintenant";
             }
-        });
+        };
 
-        // Afficher la clé et démarrer le chrono de floutage
-        function displayKeyMode() {
-            showView(appView);
-            noKeySection.classList.add('hidden');
-            hasKeySection.classList.remove('hidden');
+        function setupKeyDisplay() {
+            showView(views.app);
+            document.getElementById('noKeySection').classList.add('hidden');
+            document.getElementById('hasKeySection').classList.remove('hidden');
             
-            // Réinitialiser l'affichage
-            myKeyDisplay.innerText = actualKey;
-            myKeyDisplay.classList.remove('blur-secure');
-            blurOverlay.classList.replace('opacity-100', 'opacity-0');
-            timerText.style.display = "block";
+            const display = document.getElementById('myKeyDisplay');
+            display.innerText = actualKey;
+            display.classList.remove('blur-secure');
+            document.getElementById('blurOverlay').classList.replace('opacity-100', 'opacity-0');
             
-            startBlurTimer(180); // 180 secondes = 3 minutes
+            startTimer(180);
         }
 
-        // Gestion du chrono de 3 minutes
-        function startBlurTimer(secondsLeft) {
-            resetBlurTimer();
+        function startTimer(duration) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let timer = duration;
+            const timerDisplay = document.getElementById('timeRemaining');
             
             countdownInterval = setInterval(() => {
-                secondsLeft--;
-                const m = Math.floor(secondsLeft / 60);
-                const s = secondsLeft % 60;
-                timeRemaining.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                let minutes = Math.floor(timer / 60);
+                let seconds = timer % 60;
+                timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-                if (secondsLeft <= 0) {
+                if (--timer < 0) {
                     clearInterval(countdownInterval);
-                    timerText.style.display = "none";
-                    // Appliquer le flou
-                    myKeyDisplay.classList.add('blur-secure');
-                    blurOverlay.classList.replace('opacity-0', 'opacity-100');
+                    document.getElementById('myKeyDisplay').classList.add('blur-secure');
+                    document.getElementById('blurOverlay').classList.replace('opacity-0', 'opacity-100');
+                    addLog("Clé masquée par sécurité.");
                 }
             }, 1000);
         }
 
-        function resetBlurTimer() {
-            if (countdownInterval) clearInterval(countdownInterval);
-            if (blurTimeout) clearTimeout(blurTimeout);
-        }
+        // Actions
+        document.getElementById('googleLoginBtn').onclick = () => {
+            addLog("Ouverture du popup Google...");
+            signInWithPopup(auth, provider).catch(e => addLog(e.message, 'error'));
+        };
+        
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+        
+        document.getElementById('copyBtn').onclick = () => {
+            navigator.clipboard.writeText(actualKey);
+            showToast("Copié !");
+            addLog("Clé copiée dans le presse-papier.");
+        };
 
-        // Copier la clé (fonctionne même si c'est flouté)
-        document.getElementById('copyBtn').addEventListener('click', () => {
-            if (actualKey) {
-                navigator.clipboard.writeText(actualKey);
-                showToast("Clé copiée dans le presse-papier !");
-            }
-        });
-
-        // Utilitaires
-        function showView(viewElement) {
-            [loginView, loadingView, appView].forEach(el => el.classList.add('hidden'));
-            viewElement.classList.remove('hidden');
-        }
-
-        function showToast(msg) {
+        function showToast(m) {
             const t = document.getElementById('toast');
-            t.innerText = msg;
+            t.innerText = m;
             t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
+            setTimeout(() => t.classList.add('hidden'), 2000);
         }
     </script>
 </body>
