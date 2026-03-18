@@ -28,9 +28,9 @@
         @keyframes rotate360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         .blur-secure {
-            filter: blur(12px);
+            filter: blur(15px);
             user-select: none;
-            opacity: 0.3;
+            opacity: 0.2;
             transition: all 1s ease-in-out;
         }
         
@@ -42,7 +42,7 @@
             font-size: 10px;
             max-height: 150px;
             overflow-y: auto;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
@@ -69,10 +69,10 @@
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
             </div>
-            <h2 class="text-xl font-bold">Identifiez-vous</h2>
-            <p class="text-xs text-white/50">Utilisez votre compte Google pour accéder à votre clé système.</p>
+            <h2 class="text-xl font-bold text-white">Authentification</h2>
+            <p class="text-xs text-white/50">Veuillez lier votre compte Google pour récupérer votre accès unique.</p>
             
-            <button id="googleLoginBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-gray-200 transition-all transform active:scale-95 flex items-center justify-center gap-3">
+            <button id="googleLoginBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-gray-200 transition-all transform active:scale-95 flex items-center justify-center gap-3 shadow-xl">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -85,8 +85,11 @@
 
         <!-- Vue Chargement -->
         <div id="loadingView" class="hidden glass p-10 rounded-3xl text-center space-y-4 fade-in">
-            <i class="fas fa-circle-notch fa-spin text-3xl text-purple-500"></i>
-            <p id="loadingText" class="text-[10px] font-bold uppercase tracking-widest text-white/50">Vérification...</p>
+            <div class="relative w-12 h-12 mx-auto">
+                <div class="absolute inset-0 border-4 border-purple-500/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p id="loadingText" class="text-[10px] font-bold uppercase tracking-widest text-white/50">Synchronisation...</p>
         </div>
 
         <!-- Vue Utilisateur Connecté -->
@@ -96,42 +99,45 @@
                     <img id="userAvatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-purple-500/30">
                     <div class="flex flex-col">
                         <span id="userName" class="text-xs font-bold truncate max-w-[120px]">Utilisateur</span>
-                        <span class="text-[8px] text-green-400 uppercase tracking-widest">Compte Vérifié</span>
+                        <span class="text-[8px] text-green-400 uppercase tracking-widest">Identité confirmée</span>
                     </div>
                 </div>
                 <button id="logoutBtn" class="text-[9px] text-white/30 hover:text-red-400 uppercase font-bold tracking-widest">Quitter</button>
             </div>
 
             <div class="glass p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
+                <!-- Section vide par défaut pour éviter les faux codes -->
+                <div id="keyContentPlaceholder" class="py-10 text-white/10 italic text-[10px] uppercase tracking-widest">Chargement sécurisé...</div>
+
                 <div id="noKeySection" class="hidden space-y-6">
-                    <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto">
+                    <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto shadow-inner">
                         <i class="fas fa-plus text-xl text-purple-500"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold">Initialiser l'Accès</h3>
-                        <p class="text-[10px] text-white/40 mt-1 uppercase tracking-wide">Une seule clé par compte Google</p>
+                        <h3 class="text-lg font-bold">Activer mon Accès</h3>
+                        <p class="text-[10px] text-white/40 mt-1 uppercase tracking-widest">La clé est générée une seule fois</p>
                     </div>
-                    <button id="generateBtn" class="w-full bg-purple-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-purple-500 transition-all shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-                        Générer maintenant
+                    <button id="generateBtn" class="w-full bg-purple-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] hover:bg-purple-500 transition-all shadow-[0_0_30px_rgba(168,85,247,0.3)] active:scale-95">
+                        Générer ma clé
                     </button>
                 </div>
 
                 <div id="hasKeySection" class="hidden space-y-6">
-                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Identifiant Unique</h3>
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Votre clé système</h3>
                     
-                    <div class="bg-black/40 border border-purple-500/20 p-6 rounded-2xl relative overflow-hidden">
-                        <p id="myKeyDisplay" class="text-xl font-mono font-bold tracking-widest text-purple-400">---</p>
-                        <div id="blurOverlay" class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 pointer-events-none transition-opacity duration-700">
-                            <span class="text-[9px] uppercase tracking-widest text-white/60 border border-white/10 px-3 py-1 rounded-full bg-black/40 backdrop-blur-sm">Masqué</span>
+                    <div class="bg-black/60 border border-purple-500/20 p-6 rounded-2xl relative overflow-hidden">
+                        <p id="myKeyDisplay" class="text-xl font-mono font-bold tracking-widest text-purple-400 select-all">---</p>
+                        <div id="blurOverlay" class="absolute inset-0 flex items-center justify-center bg-black/80 opacity-0 pointer-events-none transition-opacity duration-1000">
+                            <span class="text-[9px] uppercase tracking-widest text-white/40 border border-white/10 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md">Chiffré par sécurité</span>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <button id="copyBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                            <i class="fas fa-copy"></i> Copier la clé
+                            <i class="fas fa-copy"></i> Copier
                         </button>
                         <p id="timerText" class="text-[8px] text-white/20 uppercase font-bold tracking-[0.2em]">
-                            Protection dans <span id="timeRemaining" class="text-white/60">03:00</span>
+                            Verrouillage automatique : <span id="timeRemaining" class="text-white/60">03:00</span>
                         </p>
                     </div>
                 </div>
@@ -139,20 +145,20 @@
         </div>
     </div>
 
-    <!-- Debug Console (Visible for dev) -->
+    <!-- Debug Console -->
     <div class="w-full max-w-lg mt-6">
         <div class="flex items-center justify-between mb-2 px-2">
-            <span class="text-[8px] font-black uppercase text-white/20 tracking-widest">Logs Système</span>
-            <button onclick="document.getElementById('debugLog').innerHTML = ''" class="text-[8px] text-white/20 hover:text-white uppercase font-bold">Effacer</button>
+            <span class="text-[8px] font-black uppercase text-white/30 tracking-widest">Rapport de flux</span>
+            <button onclick="document.getElementById('debugLog').innerHTML = ''" class="text-[8px] text-white/20 hover:text-white uppercase font-bold">Vider</button>
         </div>
         <div id="debugConsole" class="rounded-xl p-3 glass">
             <div id="debugLog" class="text-white/40 space-y-1">
-                <div>[System] Prêt pour l'initialisation...</div>
+                <div>[System] Attente d'action...</div>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hidden z-50 shadow-2xl">Copié !</div>
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hidden z-50 shadow-2xl">Clé copiée</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -192,90 +198,109 @@
             app: document.getElementById('appView')
         };
 
+        const sections = {
+            noKey: document.getElementById('noKeySection'),
+            hasKey: document.getElementById('hasKeySection'),
+            placeholder: document.getElementById('keyContentPlaceholder')
+        };
+
         function showView(view) {
             Object.values(views).forEach(v => v.classList.add('hidden'));
             view.classList.remove('hidden');
         }
 
-        // Monitoring Auth
+        function resetKeyUI() {
+            actualKey = "";
+            document.getElementById('myKeyDisplay').innerText = "---";
+            Object.values(sections).forEach(s => s.classList.add('hidden'));
+            sections.placeholder.classList.remove('hidden');
+            if (countdownInterval) clearInterval(countdownInterval);
+        }
+
         onAuthStateChanged(auth, async (user) => {
+            resetKeyUI(); // On vide tout à chaque changement d'état
+            
             if (user) {
                 currentUser = user;
-                addLog(`Utilisateur connecté: ${user.email}`, 'success');
-                document.getElementById('userName').innerText = user.displayName || "Utilisateur";
-                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=a855f7&color=fff`;
+                addLog(`Utilisateur: ${user.email}`, 'success');
+                document.getElementById('userName').innerText = user.displayName || "Membre";
+                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
                 
                 showView(views.loading);
                 await checkKey();
             } else {
                 currentUser = null;
-                addLog("Aucune session active.");
+                addLog("Session fermée.");
                 showView(views.login);
-                if (countdownInterval) clearInterval(countdownInterval);
             }
         });
 
-        // Vérification de la clé existante
         async function checkKey() {
             if (!currentUser) return;
-            addLog("Vérification de la clé dans Firestore...");
+            addLog("Interrogation Firestore...");
             
             try {
-                // Chemin exact des rules: /artifacts/thiab-s-ia-premium/users/{userId}/security/key_data
-                const keyPath = `artifacts/${appId}/users/${currentUser.uid}/security/key_data`;
-                addLog(`Chemin: ${keyPath}`);
-                
-                const keyDoc = await getDoc(doc(db, keyPath));
+                const keyPath = doc(db, "artifacts", appId, "users", currentUser.uid, "security", "key_data");
+                const keyDoc = await getDoc(keyPath);
+
+                sections.placeholder.classList.add('hidden');
 
                 if (keyDoc.exists()) {
-                    actualKey = keyDoc.data().key;
-                    addLog("Clé trouvée avec succès.");
-                    setupKeyDisplay();
+                    const data = keyDoc.data();
+                    if (data && data.key) {
+                        actualKey = data.key;
+                        addLog("Clé validée en base de données.", 'success');
+                        setupKeyDisplay();
+                    } else {
+                        addLog("Document trouvé mais clé absente.", 'error');
+                        sections.noKey.classList.remove('hidden');
+                    }
                 } else {
-                    addLog("Aucune clé trouvée pour ce compte.");
+                    addLog("Aucun enregistrement pour ce compte.");
                     showView(views.app);
-                    document.getElementById('noKeySection').classList.remove('hidden');
-                    document.getElementById('hasKeySection').classList.add('hidden');
+                    sections.noKey.classList.remove('hidden');
                 }
             } catch (err) {
-                addLog(`Erreur Firestore: ${err.message}`, 'error');
-                showToast("Erreur de permission Firestore");
+                addLog(`Erreur de lecture: ${err.message}`, 'error');
+                showToast("Accès refusé");
             }
         }
 
-        // Génération
         document.getElementById('generateBtn').onclick = async () => {
             const btn = document.getElementById('generateBtn');
             btn.disabled = true;
-            btn.innerText = "Génération...";
-            addLog("Tentative de génération d'une nouvelle clé...");
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Création...`;
+            addLog("Initialisation d'une clé unique...");
 
-            const newKey = `THB-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+            // Format propre THB-XXXX-XXXX
+            const p1 = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const p2 = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const newKey = `THB-${p1}-${p2}`;
             
             try {
-                const keyPath = `artifacts/${appId}/users/${currentUser.uid}/security/key_data`;
-                await setDoc(doc(db, keyPath), {
+                const keyPath = doc(db, "artifacts", appId, "users", currentUser.uid, "security", "key_data");
+                await setDoc(keyPath, {
                     key: newKey,
-                    owner: currentUser.email,
-                    uid: currentUser.uid,
-                    createdAt: Date.now()
+                    email: currentUser.email,
+                    createdAt: Date.now(),
+                    system: "Thiab's IA Premium"
                 });
                 
                 actualKey = newKey;
-                addLog(`Clé générée et enregistrée: ${newKey}`, 'success');
+                addLog("Clé enregistrée durablement.", 'success');
                 setupKeyDisplay();
             } catch (err) {
-                addLog(`Échec de l'écriture: ${err.message}`, 'error');
-                showToast("Erreur de création (Vérifiez les rules)");
+                addLog(`Échec: ${err.message}`, 'error');
+                showToast("Erreur de sauvegarde");
                 btn.disabled = false;
-                btn.innerText = "Générer maintenant";
+                btn.innerText = "Générer ma clé";
             }
         };
 
         function setupKeyDisplay() {
             showView(views.app);
-            document.getElementById('noKeySection').classList.add('hidden');
-            document.getElementById('hasKeySection').classList.remove('hidden');
+            sections.noKey.classList.add('hidden');
+            sections.hasKey.classList.remove('hidden');
             
             const display = document.getElementById('myKeyDisplay');
             display.innerText = actualKey;
@@ -299,23 +324,23 @@
                     clearInterval(countdownInterval);
                     document.getElementById('myKeyDisplay').classList.add('blur-secure');
                     document.getElementById('blurOverlay').classList.replace('opacity-0', 'opacity-100');
-                    addLog("Clé masquée par sécurité.");
+                    addLog("Affichage masqué pour protection.");
                 }
             }, 1000);
         }
 
-        // Actions
         document.getElementById('googleLoginBtn').onclick = () => {
-            addLog("Ouverture du popup Google...");
+            addLog("Lancement Auth Google...");
             signInWithPopup(auth, provider).catch(e => addLog(e.message, 'error'));
         };
         
         document.getElementById('logoutBtn').onclick = () => signOut(auth);
         
         document.getElementById('copyBtn').onclick = () => {
+            if (!actualKey) return;
             navigator.clipboard.writeText(actualKey);
-            showToast("Copié !");
-            addLog("Clé copiée dans le presse-papier.");
+            showToast("Clé copiée");
+            addLog("Action: Copie effectuée.");
         };
 
         function showToast(m) {
