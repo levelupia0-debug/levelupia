@@ -146,6 +146,12 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Console de Debug pour afficher les erreurs -->
+            <div id="debugConsole" class="hidden mt-4 p-4 bg-red-900/40 border border-red-500/50 rounded-2xl text-left text-[10px] font-mono text-red-200 overflow-x-auto space-y-2">
+                <div class="font-bold text-red-400 border-b border-red-500/30 pb-1 mb-2">Logs d'Erreur Firebase :</div>
+            </div>
+
         </div>
     </div>
 
@@ -185,7 +191,8 @@
         const provider = new GoogleAuthProvider();
         const db = getFirestore(app);
         
-        const APP_ID = "thiab-s-ia-premium-v2";
+        // CORRECTION ICI : L'ID correspond maintenant exactement à ta règle Firebase (sans le -v2)
+        const APP_ID = "thiab-s-ia-premium";
         const VIEW_DURATION = 180 * 1000; // 3 minutes en ms
         const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 heures de blocage visuel en ms
 
@@ -201,6 +208,15 @@
             wait: document.getElementById('waitSection'),
             reseeKey: document.getElementById('reseeKeySection')
         };
+
+        // Fonction pour afficher les logs dans l'interface
+        function showErrorLog(context, error) {
+            const debug = document.getElementById('debugConsole');
+            debug.classList.remove('hidden');
+            const errMsg = error ? (error.message || error.code || error.toString()) : "Erreur inconnue";
+            debug.innerHTML += `<div><span class="text-white/50">[${context}]</span> <span class="text-red-300 font-bold">${errMsg}</span></div>`;
+            console.error(`[${context}]`, error);
+        }
 
         function resetUI() {
             Object.values(views).forEach(v => v.classList.add('hidden'));
@@ -239,8 +255,8 @@
                     views.noKey.classList.remove('hidden');
                 }
             } catch (e) { 
-                console.error("Erreur de synchronisation :", e);
-                showToast("Erreur de synchronisation"); 
+                showErrorLog("Lecture Base de données", e);
+                showToast("Erreur de connexion à la base"); 
             }
         }
 
@@ -308,7 +324,7 @@
                 views.hasKey.classList.remove('hidden');
                 startCountdown(now + VIEW_DURATION);
             } catch (e) {
-                console.error("Échec critique lors de la création de la clé :", e);
+                showErrorLog("Écriture Base de données", e);
                 showToast("Échec de création");
                 btn.disabled = false;
                 btn.innerText = "Obtenir ma clé";
@@ -335,7 +351,7 @@
                 views.app.classList.remove('hidden');
                 handleExistingKey(data); // Va afficher la clé et relancer le chrono de 3 minutes
             } catch (e) {
-                console.error("Erreur lors du renouvellement de la vue :", e);
+                showErrorLog("Renouvellement Vue", e);
                 showToast("Erreur système");
             } finally {
                 btn.disabled = false;
@@ -379,7 +395,7 @@
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
-                console.error("Erreur de connexion:", error);
+                showErrorLog("Connexion Google", error);
                 if(error.code === 'auth/popup-blocked') {
                    showToast("Veuillez autoriser les popups pour vous connecter");
                 } else {
