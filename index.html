@@ -234,13 +234,17 @@
         // L'accès est strictement réservé aux comptes authentifiés
         onAuthStateChanged(auth, async (user) => {
             resetUI();
-            if (user) {
+            
+            // CORRECTION DE LA FAILLE : On refuse strictement les comptes anonymes (fantômes)
+            if (user && user.isAnonymous === false) {
                 currentUser = user;
                 document.getElementById('userName').innerText = user.displayName || "Utilisateur";
                 document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
                 views.loading.classList.remove('hidden');
                 await syncUserData();
             } else {
+                // Si c'est un compte anonyme (venant de l'App IA) ou si personne n'est connecté, 
+                // on force l'affichage du bouton de connexion Google.
                 views.login.classList.remove('hidden');
             }
         });
