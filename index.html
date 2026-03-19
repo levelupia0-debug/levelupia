@@ -20,6 +20,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            margin: 0;
         }
         .glass { 
             background: rgba(255, 255, 255, 0.03); 
@@ -46,7 +47,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-4">
+<body class="p-4 w-full">
 
     <div class="w-full max-w-lg mx-auto flex flex-col justify-center">
         <!-- Header -->
@@ -86,7 +87,7 @@
         <div id="appView" class="hidden space-y-4 fade-in">
             <div class="glass px-6 py-4 rounded-2xl flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-purple-500/30">
+                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-purple-500/30" alt="Avatar">
                     <div class="flex flex-col">
                         <span id="userName" class="text-xs font-bold truncate max-w-[150px]">---</span>
                         <span class="text-[7px] text-purple-400 uppercase tracking-widest font-black">Appareil Certifié</span>
@@ -110,9 +111,19 @@
                     <p class="text-[10px] text-white/40 uppercase leading-relaxed">Le temps de consultation est expiré.<br>Revenez dans <span class="text-white">24 heures</span>.</p>
                 </div>
 
+                <!-- Revoir Clé (Après 24h) -->
+                <div id="reseeKeySection" class="hidden space-y-6">
+                    <i class="fas fa-eye text-4xl text-purple-500"></i>
+                    <div>
+                        <h3 class="font-bold">Accès Disponible</h3>
+                        <p class="text-[9px] text-white/30 uppercase mt-2 tracking-widest">Le délai de sécurité de 24h est écoulé.</p>
+                    </div>
+                    <button id="reseeBtn" class="w-full btn-primary text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95">Revoir ma clé</button>
+                </div>
+
                 <!-- Pas de clé -->
                 <div id="noKeySection" class="hidden space-y-6">
-                    <i class="fas fa-fingerprint text-4xl text-purple-500"></i>
+                    <i class="fas fa-key text-4xl text-purple-500"></i>
                     <div>
                         <h3 class="font-bold">Générer votre Accès</h3>
                         <p class="text-[9px] text-white/30 uppercase mt-2 tracking-widest">Une seule clé par appareil est autorisée.</p>
@@ -147,6 +158,21 @@
 
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hidden z-50">Copié !</div>
 
+    <!-- Modal Déconnexion -->
+    <div id="logoutModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="glass p-8 rounded-3xl text-center space-y-6 max-w-sm w-[90%] transform scale-95 transition-transform duration-300" id="logoutModalContent">
+            <i class="fas fa-sign-out-alt text-4xl text-purple-500"></i>
+            <div>
+                <h3 class="font-bold text-lg text-white">Déconnexion</h3>
+                <p class="text-xs text-white/50 mt-2">Voulez-vous vraiment vous déconnecter de votre session ?</p>
+            </div>
+            <div class="flex gap-4">
+                <button id="cancelLogoutBtn" class="flex-1 bg-white/10 border border-white/20 text-white py-3 rounded-xl font-bold text-xs hover:bg-white/20 transition-all">Annuler</button>
+                <button id="confirmLogoutBtn" class="flex-1 bg-red-500/80 text-white py-3 rounded-xl font-bold text-xs hover:bg-red-500 transition-all">Oui, Quitter</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
@@ -169,6 +195,7 @@
         const APP_ID = "thiab-s-ia-premium-v2";
         const LOCAL_STORAGE_KEY = "thiabs_ia_device_claimed";
         const VIEW_DURATION = 180 * 1000; // 3 minutes en ms
+        const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 heures de blocage visuel en ms
 
         let currentUser = null;
         let countdownInterval;
@@ -180,7 +207,8 @@
             noKey: document.getElementById('noKeySection'),
             hasKey: document.getElementById('hasKeySection'),
             wait: document.getElementById('waitSection'),
-            localBlocked: document.getElementById('localBlockedSection')
+            localBlocked: document.getElementById('localBlockedSection'),
+            reseeKey: document.getElementById('reseeKeySection')
         };
 
         function resetUI() {
@@ -203,6 +231,7 @@
 
         async function syncUserData() {
             try {
+                console.log("Synchronisation des données utilisateur...");
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 const snap = await getDoc(keyRef);
                 
@@ -210,37 +239,61 @@
                 views.app.classList.remove('hidden');
 
                 if (snap.exists()) {
+                    console.log("Clé éternelle trouvée dans Firestore.");
                     const data = snap.data();
                     handleExistingKey(data);
                 } else {
-                    // Vérification du blocage local avant de proposer la génération
-                    if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+                    console.log("Aucune clé trouvée. Vérification du blocage local d'appareil.");
+                    // L'utilisateur n'a pas de clé dans la base de données.
+                    // On vérifie si CET appareil a DÉJÀ été utilisé par un autre compte.
+                    const hasClaimedLocally = localStorage.getItem(LOCAL_STORAGE_KEY);
+                    if (hasClaimedLocally) {
+                        console.warn("Blocage local actif : un autre compte a déjà généré une clé sur ce téléphone/PC.");
                         views.localBlocked.classList.remove('hidden');
                     } else {
+                        // Appareil propre, l'utilisateur peut générer sa clé éternelle
                         views.noKey.classList.remove('hidden');
                     }
                 }
-            } catch (e) { showToast("Erreur de synchronisation"); }
+            } catch (e) { 
+                console.error("Erreur de synchronisation :", e);
+                showToast("Erreur de synchronisation"); 
+            }
         }
 
         function handleExistingKey(data) {
             const now = Date.now();
-            const expiresAt = data.expiresAt || 0;
+            // On se base sur la dernière fois que la clé a été affichée (lastViewedAt)
+            const lastViewedAt = data.lastViewedAt || data.createdAt || 0;
+            const viewEndsAt = lastViewedAt + VIEW_DURATION;
+            const cooldownEndsAt = lastViewedAt + COOLDOWN_DURATION;
 
-            if (now > expiresAt) {
-                // Temps d'affichage fini -> Verrouillage 24h (ou plus selon tes besoins)
-                views.wait.classList.remove('hidden');
-            } else {
-                // Clé encore visible
+            // Précaution : On s'assure que l'UI de la clé n'est pas floutée par défaut
+            document.getElementById('myKeyDisplay').classList.remove('blur-secure');
+            document.getElementById('blurOverlay').style.opacity = '0';
+            const copyBtn = document.getElementById('copyBtn');
+            copyBtn.disabled = false;
+            copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+
+            if (now < viewEndsAt) {
+                console.log("Période de visionnage de 3 minutes active.");
                 document.getElementById('myKeyDisplay').innerText = data.key;
                 views.hasKey.classList.remove('hidden');
-                startCountdown(expiresAt);
+                startCountdown(viewEndsAt);
+            } else if (now >= viewEndsAt && now < cooldownEndsAt) {
+                console.log("Le temps de vue est passé, période d'attente des 24h en cours.");
+                views.wait.classList.remove('hidden');
+            } else {
+                console.log("Les 24h sont passées, l'utilisateur peut revoir sa clé éternelle.");
+                views.reseeKey.classList.remove('hidden');
             }
         }
 
         document.getElementById('generateBtn').onclick = async () => {
-            // Re-vérification de sécurité locale
+            console.log("Bouton de génération cliqué.");
+            // Ultime vérification de sécurité au moment de cliquer
             if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
+                console.warn("Tentative de génération refusée : appareil déjà utilisé par un autre compte.");
                 resetUI();
                 views.app.classList.remove('hidden');
                 views.localBlocked.classList.remove('hidden');
@@ -251,10 +304,12 @@
             btn.disabled = true;
             btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Chiffrement...`;
 
+            // Création de la Clé Éternelle
             const newKey = `THB-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-            const expiresAt = Date.now() + VIEW_DURATION;
+            const now = Date.now();
 
             try {
+                console.log("Sauvegarde de la clé éternelle dans Firestore...");
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 await setDoc(keyRef, {
                     key: newKey,
@@ -262,21 +317,56 @@
                     email: currentUser.email,
                     displayName: currentUser.displayName,
                     photoURL: currentUser.photoURL,
-                    createdAt: Date.now(),
-                    expiresAt: expiresAt
+                    createdAt: now,
+                    lastViewedAt: now // Initialisation du compteur visuel
                 });
 
-                // MARQUAGE LOCAL : Une seule génération par appareil
+                console.log("Clé sauvegardée avec succès.");
+                // MARQUAGE LOCAL : On bloque DÉFINITIVEMENT cet appareil pour les autres comptes
                 localStorage.setItem(LOCAL_STORAGE_KEY, "true");
+                
+                // Préparer l'interface de la clé
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.disabled = false;
+                copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
                 
                 document.getElementById('myKeyDisplay').innerText = newKey;
                 views.noKey.classList.add('hidden');
                 views.hasKey.classList.remove('hidden');
-                startCountdown(expiresAt);
+                startCountdown(now + VIEW_DURATION);
             } catch (e) {
+                console.error("Échec critique lors de la création de la clé :", e);
                 showToast("Échec de création");
                 btn.disabled = false;
                 btn.innerText = "Obtenir ma clé";
+            }
+        };
+
+        // NOUVEAU BOUTON : Logique pour revoir la clé éternelle après 24h
+        document.getElementById('reseeBtn').onclick = async () => {
+            const btn = document.getElementById('reseeBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Autorisation...`;
+
+            try {
+                const now = Date.now();
+                const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
+                
+                // On met à jour UNIQUEMENT l'heure de dernière vue. La clé reste la même !
+                await setDoc(keyRef, { lastViewedAt: now }, { merge: true });
+
+                const snap = await getDoc(keyRef);
+                const data = snap.data();
+
+                resetUI();
+                views.app.classList.remove('hidden');
+                handleExistingKey(data); // Va afficher la clé et relancer le chrono de 3 minutes
+            } catch (e) {
+                console.error("Erreur lors du renouvellement de la vue :", e);
+                showToast("Erreur système");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Revoir ma clé`;
             }
         };
 
@@ -292,6 +382,12 @@
                     document.getElementById('myKeyDisplay').classList.add('blur-secure');
                     document.getElementById('blurOverlay').style.opacity = '1';
                     document.getElementById('timeRemaining').innerText = "EXPIRÉ";
+                    
+                    // Désactiver le bouton copier
+                    const copyBtn = document.getElementById('copyBtn');
+                    copyBtn.disabled = true;
+                    copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+                    
                     setTimeout(() => location.reload(), 2000); // Recharge pour passer en mode "Wait"
                     return;
                 }
@@ -305,15 +401,78 @@
             countdownInterval = setInterval(update, 1000);
         }
 
-        document.getElementById('googleLoginBtn').onclick = () => signInWithPopup(auth, provider);
-        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+        // Configuration du bouton de connexion avec gestion des erreurs potentielles liées aux popups
+        document.getElementById('googleLoginBtn').onclick = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Erreur de connexion:", error);
+                if(error.code === 'auth/popup-blocked') {
+                   showToast("Veuillez autoriser les popups pour vous connecter");
+                } else {
+                   showToast("Erreur lors de la connexion. Réessayez.");
+                }
+            }
+        };
+        
+        // --- Gestion du Modal de Déconnexion ---
+        const logoutModal = document.getElementById('logoutModal');
+        const logoutModalContent = document.getElementById('logoutModalContent');
+
+        document.getElementById('logoutBtn').onclick = () => {
+            logoutModal.classList.remove('hidden');
+            // Petit délai pour permettre la transition CSS
+            setTimeout(() => {
+                logoutModal.classList.remove('opacity-0');
+                logoutModalContent.classList.remove('scale-95');
+            }, 10);
+        };
+
+        document.getElementById('cancelLogoutBtn').onclick = () => {
+            logoutModal.classList.add('opacity-0');
+            logoutModalContent.classList.add('scale-95');
+            setTimeout(() => logoutModal.classList.add('hidden'), 300);
+        };
+
+        document.getElementById('confirmLogoutBtn').onclick = () => {
+            signOut(auth);
+            logoutModal.classList.add('opacity-0');
+            logoutModalContent.classList.add('scale-95');
+            setTimeout(() => logoutModal.classList.add('hidden'), 300);
+        };
+        
         document.getElementById('copyBtn').onclick = () => {
             const k = document.getElementById('myKeyDisplay').innerText;
             if (k !== "---") {
-                navigator.clipboard.writeText(k);
-                showToast("Clé copiée");
+                // Utilisation de la méthode fallback pour les iFrames (execCommand) en plus de l'API moderne
+                try {
+                    navigator.clipboard.writeText(k).then(() => {
+                        showToast("Clé copiée");
+                    }).catch(() => {
+                        fallbackCopyTextToClipboard(k);
+                    });
+                } catch (err) {
+                    fallbackCopyTextToClipboard(k);
+                }
             }
         };
+
+        // Méthode alternative pour la copie dans les environnements stricts (comme les iframes)
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  // Éviter de scroller vers le bas
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Clé copiée");
+            } catch (err) {
+                showToast("Échec de la copie");
+            }
+            document.body.removeChild(textArea);
+        }
 
         function showToast(m) {
             const t = document.getElementById('toast');
