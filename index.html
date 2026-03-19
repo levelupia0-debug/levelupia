@@ -97,13 +97,6 @@
             </div>
 
             <div class="glass p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
-                <!-- Blocage Local -->
-                <div id="localBlockedSection" class="hidden space-y-4">
-                    <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
-                    <h3 class="font-bold text-red-400">Action Refusée</h3>
-                    <p class="text-[10px] text-white/40 uppercase leading-relaxed">Une clé a déjà été générée sur cet appareil. Le multi-compte est interdit.</p>
-                </div>
-
                 <!-- Verrouillage 24h -->
                 <div id="waitSection" class="hidden space-y-4">
                     <i class="fas fa-lock text-3xl text-purple-500/50"></i>
@@ -193,7 +186,6 @@
         const db = getFirestore(app);
         
         const APP_ID = "thiab-s-ia-premium-v2";
-        const LOCAL_STORAGE_KEY = "thiabs_ia_device_claimed";
         const VIEW_DURATION = 180 * 1000; // 3 minutes en ms
         const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 heures de blocage visuel en ms
 
@@ -207,7 +199,6 @@
             noKey: document.getElementById('noKeySection'),
             hasKey: document.getElementById('hasKeySection'),
             wait: document.getElementById('waitSection'),
-            localBlocked: document.getElementById('localBlockedSection'),
             reseeKey: document.getElementById('reseeKeySection')
         };
 
@@ -243,17 +234,9 @@
                     const data = snap.data();
                     handleExistingKey(data);
                 } else {
-                    console.log("Aucune clé trouvée. Vérification du blocage local d'appareil.");
-                    // L'utilisateur n'a pas de clé dans la base de données.
-                    // On vérifie si CET appareil a DÉJÀ été utilisé par un autre compte.
-                    const hasClaimedLocally = localStorage.getItem(LOCAL_STORAGE_KEY);
-                    if (hasClaimedLocally) {
-                        console.warn("Blocage local actif : un autre compte a déjà généré une clé sur ce téléphone/PC.");
-                        views.localBlocked.classList.remove('hidden');
-                    } else {
-                        // Appareil propre, l'utilisateur peut générer sa clé éternelle
-                        views.noKey.classList.remove('hidden');
-                    }
+                    console.log("Aucune clé trouvée. L'utilisateur peut générer sa clé éternelle.");
+                    // L'utilisateur n'a pas de clé, on le laisse simplement en générer une
+                    views.noKey.classList.remove('hidden');
                 }
             } catch (e) { 
                 console.error("Erreur de synchronisation :", e);
@@ -291,14 +274,6 @@
 
         document.getElementById('generateBtn').onclick = async () => {
             console.log("Bouton de génération cliqué.");
-            // Ultime vérification de sécurité au moment de cliquer
-            if (localStorage.getItem(LOCAL_STORAGE_KEY)) {
-                console.warn("Tentative de génération refusée : appareil déjà utilisé par un autre compte.");
-                resetUI();
-                views.app.classList.remove('hidden');
-                views.localBlocked.classList.remove('hidden');
-                return;
-            }
 
             const btn = document.getElementById('generateBtn');
             btn.disabled = true;
@@ -322,8 +297,6 @@
                 });
 
                 console.log("Clé sauvegardée avec succès.");
-                // MARQUAGE LOCAL : On bloque DÉFINITIVEMENT cet appareil pour les autres comptes
-                localStorage.setItem(LOCAL_STORAGE_KEY, "true");
                 
                 // Préparer l'interface de la clé
                 const copyBtn = document.getElementById('copyBtn');
