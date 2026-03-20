@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thiab's IA | Accès Sécurisé</title>
+    <title>Level IA | Accès Sécurisé</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -54,7 +54,7 @@
         <header class="flex items-center justify-center gap-4 mb-8">
             <i class="fas fa-star text-3xl star-logo"></i>
             <div class="text-center">
-                <h1 class="text-2xl font-black uppercase tracking-widest text-white">Thiab's <span class="text-purple-500">Accès</span></h1>
+                <h1 class="text-2xl font-black uppercase tracking-widest text-white">Level IA <span class="text-purple-500">Accès</span></h1>
                 <p class="text-[9px] font-bold text-white/30 uppercase tracking-widest">Contrôle d'Identité Unique</p>
             </div>
         </header>
@@ -201,7 +201,7 @@
         const db = getFirestore(app);
         
         // CORRESPONDANCE EXACTE : L'ID de l'application
-        const APP_ID = "thiab-s-ia-premium";
+        const APP_ID = "level-ia-premium";
         const VIEW_DURATION = 180 * 1000; // 3 minutes en ms
         const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 heures de blocage visuel en ms
 
@@ -310,7 +310,7 @@
             let p1 = '', p2 = '';
             for(let i=0; i<5; i++) p1 += chars.charAt(Math.floor(Math.random() * chars.length));
             for(let i=0; i<5; i++) p2 += chars.charAt(Math.floor(Math.random() * chars.length));
-            const newKey = `THB-${p1}-${p2}`;
+            const newKey = `LVL-${p1}-${p2}`;
             const now = Date.now();
 
             try {
