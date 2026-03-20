@@ -156,11 +156,6 @@
                 </div>
             </div>
 
-            <!-- Console de Debug pour afficher les erreurs -->
-            <div id="debugConsole" class="hidden mt-4 p-4 bg-red-900/40 border border-red-500/50 rounded-2xl text-left text-[10px] font-mono text-red-200 overflow-x-auto space-y-2">
-                <div class="font-bold text-red-400 border-b border-red-500/30 pb-1 mb-2">Logs d'Erreur Firebase :</div>
-            </div>
-
         </div>
     </div>
 
@@ -218,14 +213,6 @@
             reseeKey: document.getElementById('reseeKeySection')
         };
 
-        function showErrorLog(context, error) {
-            const debug = document.getElementById('debugConsole');
-            debug.classList.remove('hidden');
-            const errMsg = error ? (error.message || error.code || error.toString()) : "Erreur inconnue";
-            debug.innerHTML += `<div><span class="text-white/50">[${context}]</span> <span class="text-red-300 font-bold">${errMsg}</span></div>`;
-            console.error(`[${context}]`, error);
-        }
-
         function resetUI() {
             Object.values(views).forEach(v => v.classList.add('hidden'));
             if (activeInterval) clearInterval(activeInterval);
@@ -266,7 +253,6 @@
                     views.noKey.classList.remove('hidden');
                 }
             } catch (e) { 
-                showErrorLog("Lecture Base de données", e);
                 showToast("Erreur de connexion à la base"); 
             }
         }
@@ -338,7 +324,6 @@
                 views.hasKey.classList.remove('hidden');
                 startViewCountdown(now + VIEW_DURATION);
             } catch (e) {
-                showErrorLog("Écriture Base de données", e);
                 showToast("Échec de création");
                 btn.disabled = false;
                 btn.innerText = "Obtenir ma clé";
@@ -365,7 +350,6 @@
                 views.app.classList.remove('hidden');
                 handleExistingKey(data);
             } catch (e) {
-                showErrorLog("Renouvellement Vue", e);
                 showToast("Erreur système");
             } finally {
                 btn.disabled = false;
@@ -444,7 +428,6 @@
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
-                showErrorLog("Connexion Google", error);
                 if(error.code === 'auth/popup-blocked') {
                    showToast("Veuillez autoriser les popups pour vous connecter");
                 } else {
