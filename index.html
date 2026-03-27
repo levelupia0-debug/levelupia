@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Moteur EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         :root { --primary: #a855f7; --dark: #020202; }
@@ -146,7 +149,7 @@
                             <i class="fas fa-copy"></i> Copier
                         </button>
                         <!-- Lien vers l'application principale Level IA -->
-                        <a href="https://levelupia.vercel.app"target="_blank" class="w-full bg-purple-600/10 border border-purple-500/20 text-purple-300 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-purple-600/20 transition-all">
+                        <a href="https://levelupia.vercel.app" target="_blank" class="w-full bg-purple-600/10 border border-purple-500/20 text-purple-300 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-purple-600/20 transition-all">
                             Accéder à l'IA
                         </a>
                         <p class="text-[8px] text-white/20 uppercase font-black tracking-widest pt-2">
@@ -181,7 +184,6 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // MISE À JOUR CRITIQUE : Alignement exact avec la config de l'application principale (levelup-ia)
         const firebaseConfig = {
             apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
             authDomain: "levelup-ia.firebaseapp.com",
@@ -197,10 +199,9 @@
         const provider = new GoogleAuthProvider();
         const db = getFirestore(app);
         
-        // CORRESPONDANCE EXACTE : L'ID de l'application
         const APP_ID = "level-ia-premium";
-        const VIEW_DURATION = 180 * 1000; // 3 minutes en ms
-        const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 heures de blocage visuel en ms
+        const VIEW_DURATION = 180 * 1000; 
+        const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; 
 
         let currentUser = null;
         let activeInterval;
@@ -223,7 +224,6 @@
         onAuthStateChanged(auth, async (user) => {
             resetUI();
             
-            // On refuse les comptes anonymes (ceux-ci sont pour l'App IA)
             if (user && user.isAnonymous === false) {
                 currentUser = user;
                 document.getElementById('userName').innerText = user.displayName || "Utilisateur";
@@ -293,20 +293,39 @@
             try {
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 
-                // MISE À JOUR : Les données sauvées correspondent EXACTEMENT aux variables de l'App IA !
                 await setDoc(keyRef, {
                     key: newKey,
                     uid: currentUser.uid,
                     email: currentUser.email || "",
                     name: currentUser.displayName || "Utilisateur", 
                     displayName: currentUser.displayName || "Utilisateur",
-                    owner: currentUser.email || "inconnu", // L'app IA utilise "owner" pour trouver l'email
+                    owner: currentUser.email || "inconnu",
                     photoURL: currentUser.photoURL || "",
                     picture: currentUser.photoURL || "",
                     createdAt: now,
                     lastViewedAt: now
                 });
                 
+                // ==========================================
+                // 📧 SYSTÈME D'ENVOI D'EMAIL VIA EMAILJS
+                // ==========================================
+                if (currentUser.email) {
+                    const templateParams = {
+                        to_email: currentUser.email,
+                        to_name: currentUser.displayName || "Utilisateur",
+                        access_key: newKey
+                    };
+
+                    try {
+                        // LES CLÉS SONT MAINTENANT INJECTÉES ICI 👇
+                        await emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
+                        console.log("Email envoyé avec succès via EmailJS !");
+                    } catch (mailError) {
+                        console.warn("Erreur EmailJS : ", mailError);
+                    }
+                }
+                // ==========================================
+
                 const copyBtn = document.getElementById('copyBtn');
                 copyBtn.disabled = false;
                 copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
@@ -315,6 +334,9 @@
                 views.noKey.classList.add('hidden');
                 views.hasKey.classList.remove('hidden');
                 startViewCountdown(now + VIEW_DURATION);
+                
+                showToast("Clé générée et email envoyé !");
+                
             } catch (e) {
                 showToast("Échec de création");
                 btn.disabled = false;
