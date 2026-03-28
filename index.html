@@ -67,7 +67,7 @@
             </div>
         </header>
 
-        <!-- Vues -->
+        <!-- Vue Connexion -->
         <div id="loginView" class="glass p-8 rounded-3xl text-center space-y-6 fade-in hidden">
             <div class="flex justify-center">
                 <svg class="w-12 h-12" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@
             </div>
             <h2 class="text-lg font-bold">Connexion Requise</h2>
             <p class="text-xs text-white/40 leading-relaxed">Connectez-vous pour vérifier si votre appareil est éligible à une clé d'accès.</p>
-            <button id="googleLoginBtn" class="w-full bg-white text-gray-800 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 transition-all">
+            <button id="googleLoginBtn" class="w-full bg-white text-gray-800 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:bg-gray-100">
                 <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                 Vérifier mon identité
             </button>
@@ -88,7 +88,7 @@
         <!-- Chargement -->
         <div id="loadingView" class="glass p-10 rounded-3xl text-center space-y-4 fade-in hidden">
             <div class="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p class="text-[9px] font-bold uppercase tracking-widest text-white/30">Analyse du matériel...</p>
+            <p class="text-[9px] font-bold uppercase tracking-widest text-white/30">Analyse sécurisée du matériel...</p>
         </div>
 
         <!-- App View -->
@@ -101,7 +101,7 @@
                         <span class="text-[7px] text-purple-400 uppercase tracking-widest font-black">Appareil Certifié</span>
                     </div>
                 </div>
-                <button id="logoutBtn" class="p-2 text-white/20 hover:text-white"><i class="fas fa-power-off text-xs"></i></button>
+                <button id="logoutBtn" class="p-2 text-white/20 hover:text-white transition-colors"><i class="fas fa-power-off text-xs"></i></button>
             </div>
 
             <div class="glass p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
@@ -134,28 +134,36 @@
                 <div id="noKeySection" class="hidden space-y-6">
                     <i class="fas fa-key text-4xl text-purple-500"></i>
                     <div>
-                        <h3 class="font-bold">Générer votre Accès</h3>
-                        <p class="text-[9px] text-white/30 uppercase mt-2 tracking-widest">Générez une clé pour accéder à l'IA.</p>
+                        <h3 class="font-bold text-lg">Générer votre Accès</h3>
+                        <p class="text-xs text-white/50 leading-relaxed mt-3">Votre identité est validée. Vous pouvez maintenant générer votre clé unique. Cette clé vous permettra de vous connecter à l'écosystème Level IA.</p>
                     </div>
-                    <button id="generateBtn" class="w-full btn-primary text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95">Obtenir ma clé</button>
+                    <button id="generateBtn" class="w-full btn-primary text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all">
+                        Obtenir ma clé
+                    </button>
                 </div>
 
                 <!-- Clé active (Vue pendant 3 minutes) -->
                 <div id="hasKeySection" class="hidden space-y-6">
-                    <h3 class="text-[9px] font-black uppercase tracking-widest text-white/30">Clé d'accès unique</h3>
-                    <div class="bg-black/40 border border-purple-500/20 p-6 rounded-2xl relative overflow-hidden">
-                        <p id="myKeyDisplay" class="text-xl font-mono font-bold tracking-widest text-purple-400">---</p>
+                    <i class="fas fa-star text-4xl text-purple-500 star-logo mb-2 block mx-auto"></i>
+                    <div>
+                        <h3 class="font-bold text-lg text-white">Votre Clé d'Accès</h3>
+                        <p class="text-xs text-white/60 leading-relaxed mt-3 px-2">Félicitations ! Voici votre clé d'accès sécurisée. <strong class="text-purple-400">Copiez-la</strong> puis cliquez sur le bouton ci-dessous pour lancer l'intelligence artificielle.</p>
+                    </div>
+                    
+                    <div class="bg-black/40 border border-purple-500/30 p-6 rounded-2xl relative overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+                        <p id="myKeyDisplay" class="text-2xl font-mono font-black tracking-widest text-white glow-text">---</p>
                         <div id="blurOverlay" class="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-1000">
                             <span class="text-[8px] font-black uppercase tracking-widest text-white/40">Sécurité Active</span>
                         </div>
                     </div>
-                    <div class="space-y-3">
-                        <button id="copyBtn" class="w-full bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95">
-                            <i class="fas fa-copy"></i> Copier
+                    
+                    <div class="space-y-4 pt-2">
+                        <button id="copyBtn" class="w-full bg-white text-gray-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-gray-200 shadow-lg">
+                            <i class="fas fa-copy"></i> Copier ma clé
                         </button>
                         <!-- Lien vers l'application principale Level IA -->
-                        <a href="https://levelupia.vercel.app" target="_blank" class="w-full bg-purple-600/10 border border-purple-500/20 text-purple-300 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-purple-600/20 transition-all">
-                            Accéder à l'IA
+                        <a href="https://levelupia.vercel.app" target="_blank" class="w-full bg-purple-600 border border-purple-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-purple-500 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                            <i class="fas fa-rocket"></i> Lancer Level IA
                         </a>
                         <p class="text-[8px] text-white/20 uppercase font-black tracking-widest pt-2">
                             Expiration du visuel : <span id="timeRemaining" class="text-purple-500">--:--</span>
@@ -167,19 +175,20 @@
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-2xl font-black text-[9px] uppercase tracking-widest hidden z-50">Copié !</div>
+    <!-- Toast de notification ultra stylé -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-xl border border-purple-500/30 text-white px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest hidden z-50 shadow-[0_0_20px_rgba(168,85,247,0.2)]">⭐ Action confirmée</div>
 
     <!-- Modal Déconnexion -->
     <div id="logoutModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300">
-        <div class="glass p-8 rounded-3xl text-center space-y-6 max-w-sm w-[90%] transform scale-95 transition-transform duration-300" id="logoutModalContent">
+        <div class="glass border border-white/10 p-8 rounded-3xl text-center space-y-6 max-w-sm w-[90%] transform scale-95 transition-transform duration-300" id="logoutModalContent">
             <i class="fas fa-sign-out-alt text-4xl text-purple-500"></i>
             <div>
                 <h3 class="font-bold text-lg text-white">Déconnexion</h3>
-                <p class="text-xs text-white/50 mt-2">Voulez-vous vraiment vous déconnecter de votre session ?</p>
+                <p class="text-xs text-white/50 mt-2">Voulez-vous vraiment vous déconnecter de votre session sécurisée ?</p>
             </div>
             <div class="flex gap-4">
-                <button id="cancelLogoutBtn" class="flex-1 bg-white/10 border border-white/20 text-white py-3 rounded-xl font-bold text-xs hover:bg-white/20 transition-all">Annuler</button>
-                <button id="confirmLogoutBtn" class="flex-1 bg-red-500/80 text-white py-3 rounded-xl font-bold text-xs hover:bg-red-500 transition-all">Oui, Quitter</button>
+                <button id="cancelLogoutBtn" class="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-xl font-bold text-xs hover:bg-white/10 transition-all">Annuler</button>
+                <button id="confirmLogoutBtn" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold text-xs shadow-[0_0_15px_rgba(239,68,68,0.4)] transition-all">Oui, Quitter</button>
             </div>
         </div>
     </div>
@@ -189,6 +198,7 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+        // Configuration de la base de données Level IA
         const firebaseConfig = {
             apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
             authDomain: "levelup-ia.firebaseapp.com",
@@ -205,8 +215,8 @@
         const db = getFirestore(app);
         
         const APP_ID = "level-ia-premium";
-        const VIEW_DURATION = 180 * 1000; 
-        const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; 
+        const VIEW_DURATION = 180 * 1000; // 3 minutes en ms
+        const COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 heures de blocage
 
         let currentUser = null;
         let activeInterval;
@@ -228,7 +238,6 @@
 
         onAuthStateChanged(auth, async (user) => {
             resetUI();
-            
             if (user && user.isAnonymous === false) {
                 currentUser = user;
                 document.getElementById('userName').innerText = user.displayName || "Utilisateur";
@@ -249,13 +258,12 @@
                 views.app.classList.remove('hidden');
 
                 if (snap.exists()) {
-                    const data = snap.data();
-                    handleExistingKey(data);
+                    handleExistingKey(snap.data());
                 } else {
                     views.noKey.classList.remove('hidden');
                 }
             } catch (e) { 
-                showToast("Erreur de connexion à la base"); 
+                showToast("⭐ Erreur de connexion à la base sécurisée."); 
             }
         }
 
@@ -286,7 +294,7 @@
         document.getElementById('generateBtn').onclick = async () => {
             const btn = document.getElementById('generateBtn');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Chiffrement...`;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Chiffrement...`;
 
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let p1 = '', p2 = '';
@@ -294,58 +302,40 @@
             for(let i=0; i<5; i++) p2 += chars.charAt(Math.floor(Math.random() * chars.length));
             const newKey = `LVL-${p1}-${p2}`;
             const now = Date.now();
+            
+            let emailSentStatus = false;
 
-            let emailHasBeenSent = false;
-
-            // ==========================================
-            // 📧 SYSTÈME D'ENVOI D'EMAIL VIA EMAILJS
-            // ==========================================
             if (currentUser.email) {
                 const templateParams = {
-                    email: currentUser.email, // LA CORRECTION EST LÀ (Correspond au {{email}})
+                    email: currentUser.email,
                     to_email: currentUser.email,
                     to_name: currentUser.displayName || "Utilisateur",
                     access_key: newKey
                 };
-
                 try {
                     await emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
-                    emailHasBeenSent = true;
-                    console.log("Email envoyé avec succès via EmailJS !");
+                    emailSentStatus = true;
                 } catch (mailError) {
                     console.warn("Erreur EmailJS : ", mailError);
                 }
             }
-            // ==========================================
 
             try {
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
-                
                 await setDoc(keyRef, {
-                    key: newKey,
-                    uid: currentUser.uid,
-                    email: currentUser.email || "",
-                    name: currentUser.displayName || "Utilisateur", 
-                    displayName: currentUser.displayName || "Utilisateur",
-                    owner: currentUser.email || "inconnu",
-                    photoURL: currentUser.photoURL || "",
-                    picture: currentUser.photoURL || "",
-                    createdAt: now,
-                    lastViewedAt: now,
-                    emailSent: emailHasBeenSent // On mémorise si le mail a bien été envoyé
+                    key: newKey, uid: currentUser.uid, email: currentUser.email || "",
+                    name: currentUser.displayName || "Utilisateur", displayName: currentUser.displayName || "Utilisateur",
+                    owner: currentUser.email || "inconnu", photoURL: currentUser.photoURL || "",
+                    picture: currentUser.photoURL || "", createdAt: now, lastViewedAt: now,
+                    emailSent: emailSentStatus
                 });
-                
-                const copyBtn = document.getElementById('copyBtn');
-                copyBtn.disabled = false;
-                copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
                 
                 document.getElementById('myKeyDisplay').innerText = newKey;
                 views.noKey.classList.add('hidden');
                 views.hasKey.classList.remove('hidden');
                 startViewCountdown(now + VIEW_DURATION);
                 
-                showToast(emailHasBeenSent ? "⭐ Clé générée et email envoyé !" : "⭐ Clé générée avec succès !");
-                
+                showToast(emailSentStatus ? "⭐ Clé générée et email envoyé !" : "⭐ Clé générée avec succès !");
             } catch (e) {
                 showToast("Échec de création");
                 btn.disabled = false;
@@ -353,52 +343,55 @@
             }
         };
 
+        // BOUTON "REVOIR MA CLÉ" (Après les 24h d'attente)
         document.getElementById('reseeBtn').onclick = async () => {
             const btn = document.getElementById('reseeBtn');
+            const originalText = btn.innerText;
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Autorisation...`;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Autorisation...`;
 
             try {
                 const now = Date.now();
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 const snap = await getDoc(keyRef);
-                const data = snap.data();
+                
+                if (snap.exists()) {
+                    const data = snap.data();
+                    let emailSentStatus = data.emailSent === true;
 
-                let emailHasBeenSent = data.emailSent === true;
-
-                // ==========================================
-                // 📧 ENVOI D'EMAIL UNIQUEMENT SI JAMAIS ENVOYÉ (Anciens utilisateurs)
-                // ==========================================
-                if (!emailHasBeenSent && currentUser.email && data.key) {
-                    const templateParams = {
-                        email: currentUser.email, // LA CORRECTION EST LÀ (Correspond au {{email}})
-                        to_email: currentUser.email,
-                        to_name: currentUser.displayName || "Utilisateur",
-                        access_key: data.key
-                    };
-
-                    try {
-                        await emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
-                        emailHasBeenSent = true;
-                        console.log("Email envoyé avec succès (Ancien utilisateur) !");
-                    } catch (mailError) {
-                        console.warn("Erreur EmailJS : ", mailError);
+                    // ENVOI UNIQUEMENT SI LE MAIL N'A JAMAIS ÉTÉ ENVOYÉ (Protection de Quota)
+                    if (!emailSentStatus && currentUser.email && data.key) {
+                        const templateParams = {
+                            email: currentUser.email,
+                            to_email: currentUser.email,
+                            to_name: currentUser.displayName || "Utilisateur",
+                            access_key: data.key
+                        };
+                        try {
+                            await emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
+                            emailSentStatus = true;
+                        } catch (mailError) {
+                            console.warn("Erreur EmailJS : ", mailError);
+                        }
                     }
+
+                    // On enregistre qu'il a bien été vu, et que le mail a bien été envoyé (pour ne plus jamais le refaire)
+                    await setDoc(keyRef, { lastViewedAt: now, emailSent: emailSentStatus }, { merge: true });
+
+                    // On met à jour la variable locale pour l'affichage
+                    data.lastViewedAt = now;
+                    data.emailSent = emailSentStatus;
+
+                    resetUI();
+                    views.app.classList.remove('hidden');
+                    handleExistingKey(data);
+                    showToast("⭐ Clé récupérée avec succès !");
                 }
-                // ==========================================
-
-                // On met à jour la base avec la nouvelle date de vue ET le statut du mail
-                await setDoc(keyRef, { lastViewedAt: now, emailSent: emailHasBeenSent }, { merge: true });
-
-                resetUI();
-                views.app.classList.remove('hidden');
-                handleExistingKey(data);
-                showToast("⭐ Clé récupérée avec succès !");
             } catch (e) {
                 showToast("Erreur système");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `Revoir ma clé`;
+                btn.innerText = originalText;
             }
         };
 
@@ -468,9 +461,9 @@
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 if(error.code === 'auth/popup-blocked') {
-                   showToast("Veuillez autoriser les popups pour vous connecter");
+                   showToast("⭐ Veuillez autoriser les fenêtres pop-ups pour vous connecter.");
                 } else {
-                   showToast("Erreur lors de la connexion. Réessayez.");
+                   showToast("⭐ Erreur lors de la connexion. Réessayez.");
                 }
             }
         };
@@ -504,7 +497,7 @@
             if (k !== "---") {
                 try {
                     navigator.clipboard.writeText(k).then(() => {
-                        showToast("Clé copiée");
+                        showToast("⭐ Clé copiée ! Vous pouvez ouvrir l'application.");
                     }).catch(() => {
                         fallbackCopyTextToClipboard(k);
                     });
@@ -523,9 +516,9 @@
             textArea.select();
             try {
                 document.execCommand('copy');
-                showToast("Clé copiée");
+                showToast("⭐ Clé copiée ! Vous pouvez ouvrir l'application.");
             } catch (err) {
-                showToast("Échec de la copie");
+                showToast("⭐ Échec de la copie.");
             }
             document.body.removeChild(textArea);
         }
@@ -534,7 +527,7 @@
             const t = document.getElementById('toast');
             t.innerText = m;
             t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 2000);
+            setTimeout(() => t.classList.add('hidden'), 3000);
         }
     </script>
 </body>
