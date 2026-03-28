@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level IA | Accès Sécurisé</title>
+    <title>Level IA | Gestionnaire de Clés</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'><path fill='%23a855f7' d='M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z'/></svg>" type="image/svg+xml">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Moteur EmailJS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
@@ -27,7 +24,6 @@
             justify-content: center;
             align-items: center;
             margin: 0;
-            overflow-x: hidden;
         }
         .glass { 
             background: rgba(255, 255, 255, 0.03); 
@@ -37,143 +33,116 @@
         .star-logo { animation: rotate360 10s linear infinite; color: #a855f7; }
         @keyframes rotate360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        .blur-secure { filter: blur(15px); user-select: none; pointer-events: none; opacity: 0.2; transition: all 0.5s; }
-        
         .btn-primary {
             background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
             box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.4);
         }
 
         .google-icon { width: 18px; height: 18px; }
-        .fade-in { animation: fadeIn 0.5s ease forwards; }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .glow-text { text-shadow: 0 0 20px rgba(168, 85, 247, 0.8); }
-        .cyber-font { font-family: monospace; letter-spacing: 0.2em; }
+        
+        .cyber-font { font-family: 'Courier New', Courier, monospace; letter-spacing: 0.15em; }
     </style>
 </head>
-<body class="p-4 w-full relative">
+<body class="p-4 w-full">
 
     <div class="w-full max-w-lg mx-auto flex flex-col justify-center relative z-10">
         <!-- Header -->
         <header class="flex items-center justify-center gap-4 mb-8">
             <i class="fas fa-star text-3xl star-logo"></i>
             <div class="text-center">
-                <h1 class="text-2xl font-black uppercase tracking-widest text-white">Level IA <span class="text-purple-500">Accès</span></h1>
-                <p class="text-[9px] font-bold text-white/30 uppercase tracking-widest">Protocoles de Sécurité</p>
+                <h1 class="text-2xl font-black uppercase tracking-widest text-white">Level IA <span class="text-purple-500">Access</span></h1>
+                <p class="text-[9px] font-bold text-white/30 uppercase tracking-widest">Gestionnaire de Clés</p>
             </div>
         </header>
 
-        <!-- Vue Connexion -->
+        <!-- VUE : CONNEXION -->
         <div id="loginView" class="glass p-8 rounded-3xl text-center space-y-6 fade-in hidden">
-            <div class="flex justify-center">
-                <svg class="w-12 h-12" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
+            <div class="flex justify-center mb-2">
+                <div class="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                </div>
             </div>
-            <h2 class="text-lg font-bold">Connexion Requise</h2>
-            <p class="text-xs text-white/40 leading-relaxed">Connectez-vous pour vérifier si votre appareil est éligible à une clé d'accès ou pour accéder à votre coffre-fort.</p>
-            <button id="googleLoginBtn" class="w-full bg-white text-gray-800 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:bg-gray-100">
+            <h2 class="text-lg font-bold uppercase tracking-widest">Authentification</h2>
+            <p class="text-xs text-white/40 leading-relaxed">Connectez-vous avec votre compte Google pour accéder à vos paramètres de sécurité et gérer votre clé d'accès.</p>
+            
+            <button id="googleLoginBtn" class="w-full bg-white text-gray-800 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-gray-200 active:scale-95 transition-all shadow-lg">
                 <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                Vérifier mon identité
+                Connexion Google
             </button>
         </div>
 
-        <!-- Chargement -->
+        <!-- VUE : CHARGEMENT -->
         <div id="loadingView" class="glass p-10 rounded-3xl text-center space-y-4 fade-in hidden">
             <div class="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p class="text-[9px] font-bold uppercase tracking-widest text-white/30">Analyse sécurisée de l'identité...</p>
+            <p class="text-[9px] font-bold uppercase tracking-widest text-white/30">Vérification de la base de données...</p>
         </div>
 
-        <!-- App View (Connecté) -->
-        <div id="appView" class="hidden space-y-4 fade-in">
-            <!-- Header Utilisateur -->
+        <!-- VUE : DASHBOARD (Connecté) -->
+        <div id="dashboardView" class="hidden space-y-4 fade-in">
+            
+            <!-- Profil -->
             <div class="glass px-6 py-4 rounded-2xl flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-purple-500/30" alt="Avatar">
+                    <img id="userAvatar" src="" class="w-10 h-10 rounded-full border-2 border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
                     <div class="flex flex-col">
-                        <span id="userName" class="text-xs font-bold truncate max-w-[150px]">---</span>
-                        <span class="text-[7px] text-green-400 uppercase tracking-widest font-black"><i class="fas fa-shield-check"></i> Identité Certifiée</span>
+                        <span id="userName" class="text-sm font-bold truncate max-w-[150px]">---</span>
+                        <span id="userEmail" class="text-[9px] text-white/40 truncate max-w-[150px]">---</span>
                     </div>
                 </div>
-                <button id="logoutBtn" class="p-2 text-white/20 hover:text-white transition-colors"><i class="fas fa-power-off text-xs"></i></button>
+                <button id="logoutBtn" class="bg-red-500/10 border border-red-500/20 text-red-400 p-2.5 rounded-xl hover:bg-red-500/20 transition-all" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
 
-            <!-- Conteneur Principal -->
-            <div class="glass p-8 rounded-3xl text-center space-y-6 relative overflow-hidden">
+            <!-- Gestion de la Clé -->
+            <div class="glass p-8 rounded-3xl text-center space-y-6">
                 
-                <!-- ETAPE 1 : Pas de clé (Nouveau) -->
+                <!-- Sous-vue : Aucune Clé -->
                 <div id="noKeySection" class="hidden space-y-6">
-                    <i class="fas fa-fingerprint text-5xl text-purple-500"></i>
-                    <div>
-                        <h3 class="font-bold text-lg">Générer votre Accès</h3>
-                        <p class="text-xs text-white/50 leading-relaxed mt-3">Votre identité est validée. Cliquez ci-dessous pour forger votre clé cryptographique. Elle sera immédiatement expédiée dans votre boîte mail.</p>
+                    <div class="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto border border-purple-500/30">
+                        <i class="fas fa-key text-2xl text-purple-400"></i>
                     </div>
-                    <button id="generateBtn" class="w-full btn-primary text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all">
-                        <i class="fas fa-lock mr-2"></i> Forger ma clé unique
+                    <div>
+                        <h3 class="font-bold text-lg">Aucune Clé Active</h3>
+                        <p class="text-xs text-white/50 leading-relaxed mt-2">Vous n'avez pas encore généré votre accès personnel pour Level IA.</p>
+                    </div>
+                    <button id="createKeyBtn" class="w-full btn-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">
+                        <i class="fas fa-magic mr-2"></i> Générer ma clé
                     </button>
                 </div>
 
-                <!-- ETAPE 2 : Clé générée & Envoyée par mail -->
-                <div id="successSentSection" class="hidden space-y-6">
-                    <div class="w-20 h-20 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mx-auto mb-4 relative">
-                        <i class="fas fa-envelope-open-text text-3xl text-green-400"></i>
-                        <span class="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-black animate-ping"></span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Expédition Réussie</h3>
-                        <p class="text-xs text-white/60 leading-relaxed mt-3 px-2">
-                            Votre clé a été forgée avec succès. Par mesure de sécurité, elle n'est pas affichée ici. 
-                            <br><br>Un lien de déverrouillage vient d'être envoyé à l'adresse <strong id="displaySentEmail" class="text-green-400">...</strong>
-                        </p>
-                    </div>
-                    <div class="space-y-3 pt-4">
-                        <p class="text-[9px] text-white/30 uppercase tracking-widest font-bold"><i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Vérifiez vos courriers indésirables (Spams)</p>
-                    </div>
-                </div>
-
-                <!-- ETAPE 3 : Hub (Utilisateur revenant sans lien de déverrouillage) -->
-                <div id="hubSection" class="hidden space-y-6">
-                    <i class="fas fa-user-shield text-5xl text-purple-500/80"></i>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Coffre-fort Actif</h3>
-                        <p class="text-xs text-white/50 leading-relaxed mt-3">Votre clé d'accès existe déjà. Utilisez le bouton "Déverrouiller ma clé" présent dans le mail que nous vous avons envoyé pour la consulter.</p>
-                    </div>
-                    <div class="space-y-3 pt-2">
-                        <button id="resendEmailBtn" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-bold text-[10px] uppercase tracking-[0.1em] hover:bg-white/10 transition-all active:scale-95">
-                            <i class="fas fa-paper-plane mr-2"></i> Renvoyer le mail d'accès
-                        </button>
-                        <a href="https://levelupia.vercel.app" target="_blank" class="w-full bg-transparent border border-purple-500/50 text-purple-400 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-[0.1em] flex items-center justify-center gap-2 hover:bg-purple-500/10 transition-all">
-                            Lancer Level IA <i class="fas fa-external-link-alt"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- ETAPE 4 : Déverrouillage (Lien depuis le mail avec ?action=reveal) -->
-                <div id="revealSection" class="hidden space-y-6">
-                    <i class="fas fa-unlock-alt text-4xl text-green-400 mb-2 block mx-auto"></i>
-                    <div>
-                        <h3 class="font-bold text-lg text-white">Accès Déverrouillé</h3>
-                        <p class="text-xs text-white/60 leading-relaxed mt-3 px-2">Authentification par lien confirmée. Voici votre clé de chiffrement. Elle s'autodétruira visuellement dans 3 minutes.</p>
+                <!-- Sous-vue : Clé Existante -->
+                <div id="activeKeySection" class="hidden space-y-6">
+                    <div class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-full">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-green-400">Accès Autorisé</span>
                     </div>
                     
-                    <div class="bg-black/60 border border-green-500/30 p-6 rounded-2xl relative overflow-hidden shadow-[0_0_30px_rgba(74,222,128,0.15)]">
-                        <p id="myKeyDisplay" class="text-2xl font-black text-green-400 cyber-font">INITIALISATION...</p>
-                        <div id="blurOverlay" class="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-1000">
-                            <span class="text-[9px] font-black uppercase tracking-[0.3em] text-red-500"><i class="fas fa-lock mr-2"></i> Verrouillé</span>
+                    <div>
+                        <p class="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-2">Votre Clé d'Accès Actuelle :</p>
+                        <div class="bg-black/60 border border-purple-500/30 p-5 rounded-2xl relative shadow-inner group">
+                            <p id="keyDisplay" class="text-xl font-black text-purple-400 cyber-font">LVL-XXXXX-XXXXX</p>
                         </div>
                     </div>
-                    
-                    <div class="space-y-3 pt-2">
-                        <button id="copyBtn" class="w-full btn-primary text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg">
-                            <i class="fas fa-copy"></i> Copier la clé
+
+                    <div class="grid grid-cols-1 gap-3">
+                        <button id="copyKeyBtn" class="w-full bg-white/10 border border-white/20 text-white py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-white/20 active:scale-95 transition-all">
+                            <i class="fas fa-copy mr-2"></i> Copier la clé
                         </button>
-                        <p class="text-[8px] text-white/30 uppercase font-black tracking-[0.2em] pt-2">
-                            Verrouillage dans : <span id="timeRemaining" class="text-red-400">--:--</span>
-                        </p>
+                        
+                        <a href="https://levelupia.vercel.app" target="_blank" class="w-full btn-primary text-white py-3.5 rounded-xl font-bold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            Lancer l'Application <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/5 space-y-3">
+                        <p class="text-[10px] text-white/30 leading-relaxed font-medium px-2">En cas de fuite de votre clé, générez-en une nouvelle. <strong class="text-red-400">L'ancienne sera immédiatement révoquée.</strong></p>
+                        
+                        <button id="regenerateKeyBtn" class="w-full bg-red-500/10 border border-red-500/30 text-red-400 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-sync-alt"></i> Révoquer & Générer une nouvelle clé
+                        </button>
                     </div>
                 </div>
 
@@ -181,37 +150,22 @@
         </div>
     </div>
 
-    <!-- Toast -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-xl border border-purple-500/30 text-white px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest hidden z-50 shadow-[0_0_20px_rgba(168,85,247,0.2)] transition-all">⭐ Action confirmée</div>
-
-    <!-- Modal Déconnexion -->
-    <div id="logoutModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300">
-        <div class="glass border border-white/10 p-8 rounded-3xl text-center space-y-6 max-w-sm w-[90%] transform scale-95 transition-transform duration-300" id="logoutModalContent">
-            <i class="fas fa-sign-out-alt text-4xl text-purple-500"></i>
-            <div>
-                <h3 class="font-bold text-lg text-white">Déconnexion</h3>
-                <p class="text-xs text-white/50 mt-2">Voulez-vous vraiment quitter votre coffre-fort ?</p>
-            </div>
-            <div class="flex gap-4">
-                <button id="cancelLogoutBtn" class="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-xl font-bold text-xs hover:bg-white/10 transition-all">Annuler</button>
-                <button id="confirmLogoutBtn" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold text-xs shadow-[0_0_15px_rgba(239,68,68,0.4)] transition-all">Quitter</button>
-            </div>
-        </div>
-    </div>
+    <!-- Toast Notifications -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-xl border border-white/20 text-white px-6 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest hidden z-50 shadow-2xl transition-all">⭐ Message</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+        // CONFIGURATION FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyA3JgvNu5p-43037jvm4WRDaJHI9ES7uGM",
             authDomain: "levelup-ia.firebaseapp.com",
             projectId: "levelup-ia",
             storageBucket: "levelup-ia.firebasestorage.app",
             messagingSenderId: "229420004282",
-            appId: "1:229420004282:web:6735f059a947f0936ae383",
-            measurementId: "G-MSRDY2574K"
+            appId: "1:229420004282:web:6735f059a947f0936ae383"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -220,257 +174,141 @@
         const db = getFirestore(app);
         
         const APP_ID = "level-ia-premium";
-        const VIEW_DURATION = 180 * 1000; // 3 minutes d'affichage
-        
         let currentUser = null;
-        let activeInterval;
-        let keyDataCache = null;
 
-        // Détection de l'URL "Magic Link"
-        const urlParams = new URLSearchParams(window.location.search);
-        const isRevealAction = urlParams.get('action') === 'reveal';
-
+        // ÉLÉMENTS DE L'INTERFACE
         const views = {
             login: document.getElementById('loginView'),
             loading: document.getElementById('loadingView'),
-            app: document.getElementById('appView'),
+            dashboard: document.getElementById('dashboardView'),
             noKey: document.getElementById('noKeySection'),
-            successSent: document.getElementById('successSentSection'),
-            hub: document.getElementById('hubSection'),
-            reveal: document.getElementById('revealSection')
+            activeKey: document.getElementById('activeKeySection')
         };
 
-        function resetUI() {
+        // FONCTIONS UTILITAIRES
+        function showView(viewName) {
             Object.values(views).forEach(v => v.classList.add('hidden'));
-            if (activeInterval) clearInterval(activeInterval);
+            if (views[viewName]) views[viewName].classList.remove('hidden');
         }
 
-        onAuthStateChanged(auth, async (user) => {
-            resetUI();
-            if (user && user.isAnonymous === false) {
-                currentUser = user;
-                document.getElementById('userName').innerText = user.displayName || "Utilisateur";
-                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
-                views.loading.classList.remove('hidden');
-                await syncUserData();
-            } else {
-                views.login.classList.remove('hidden');
-            }
-        });
-
-        async function syncUserData() {
-            try {
-                const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
-                const snap = await getDoc(keyRef);
-                
-                views.loading.classList.add('hidden');
-                views.app.classList.remove('hidden');
-
-                if (snap.exists()) {
-                    keyDataCache = snap.data();
-                    if (isRevealAction) {
-                        triggerRevealFlow(keyDataCache.key);
-                    } else {
-                        views.hub.classList.remove('hidden');
-                    }
-                } else {
-                    views.noKey.classList.remove('hidden');
-                }
-            } catch (e) { 
-                showToast("⭐ Erreur de connexion au serveur."); 
-            }
+        function showToast(message, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = message;
+            t.className = `fixed top-5 left-1/2 -translate-x-1/2 backdrop-blur-xl border px-6 py-3 rounded-full font-bold text-[10px] uppercase tracking-widest z-50 shadow-2xl transition-all ${isError ? 'bg-red-500/20 border-red-500/50 text-red-200' : 'bg-white/10 border-white/20 text-white'}`;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
         }
 
-        // ANIMATION HACKER POUR LE DÉCHIFFREMENT
-        function decryptTextAnimation(elementId, realText, callback) {
-            const el = document.getElementById(elementId);
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*';
-            let iterations = 0;
-            const maxIterations = 40; // ~1.2 secondes
-            
-            const interval = setInterval(() => {
-                el.innerText = realText.split('').map((c, i) => {
-                    if(c === '-') return '-';
-                    if(i < (iterations / maxIterations) * realText.length) return realText[i];
-                    return chars[Math.floor(Math.random() * chars.length)];
-                }).join('');
-                
-                iterations++;
-                if(iterations >= maxIterations) {
-                    clearInterval(interval);
-                    el.innerText = realText;
-                    el.classList.add('glow-text');
-                    if(callback) callback();
-                }
-            }, 30);
-        }
-
-        function triggerRevealFlow(key) {
-            views.reveal.classList.remove('hidden');
-            document.getElementById('blurOverlay').style.opacity = '0';
-            document.getElementById('myKeyDisplay').classList.remove('blur-secure');
-            
-            const copyBtn = document.getElementById('copyBtn');
-            copyBtn.disabled = false;
-            copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
-
-            // Lancer l'animation
-            decryptTextAnimation('myKeyDisplay', key, () => {
-                // Quand l'animation est finie, on lance le chrono de 3 minutes
-                startViewCountdown(Date.now() + VIEW_DURATION);
-            });
-        }
-
-        function startViewCountdown(expiresAt) {
-            if (activeInterval) clearInterval(activeInterval);
-            
-            const update = () => {
-                const now = Date.now();
-                const diff = expiresAt - now;
-
-                if (diff <= 0) {
-                    clearInterval(activeInterval);
-                    document.getElementById('myKeyDisplay').classList.add('blur-secure');
-                    document.getElementById('blurOverlay').style.opacity = '1';
-                    document.getElementById('timeRemaining').innerText = "VERROUILLÉ";
-                    
-                    const copyBtn = document.getElementById('copyBtn');
-                    copyBtn.disabled = true;
-                    copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
-                    return;
-                }
-
-                const m = Math.floor(diff / 60000);
-                const s = Math.floor((diff % 60000) / 1000);
-                document.getElementById('timeRemaining').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            };
-
-            update();
-            activeInterval = setInterval(update, 1000);
-        }
-
-        // GÉNÉRER ET ENVOYER PAR MAIL
-        document.getElementById('generateBtn').onclick = async () => {
-            const btn = document.getElementById('generateBtn');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Fabrication...`;
-
+        function generateRandomKey() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let p1 = '', p2 = '';
             for(let i=0; i<5; i++) p1 += chars.charAt(Math.floor(Math.random() * chars.length));
             for(let i=0; i<5; i++) p2 += chars.charAt(Math.floor(Math.random() * chars.length));
-            const newKey = `LVL-${p1}-${p2}`;
-            
-            // Construit le lien magique
-            const portalUrl = window.location.origin + window.location.pathname + "?action=reveal";
+            return `LVL-${p1}-${p2}`;
+        }
 
-            let emailSentStatus = false;
-            if (currentUser.email) {
-                const templateParams = {
-                    email: currentUser.email,
-                    to_name: currentUser.displayName || "Utilisateur",
-                    access_key: newKey,
-                    reveal_link: portalUrl // VARIABLE À AJOUTER DANS EMAILJS
-                };
-                try {
-                    await emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
-                    emailSentStatus = true;
-                } catch (mailError) {
-                    console.warn("Erreur Mail", mailError);
-                }
+        // GESTION DE L'ÉTAT D'AUTHENTIFICATION
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.isAnonymous === false) {
+                currentUser = user;
+                document.getElementById('userName').innerText = user.displayName || "Utilisateur";
+                document.getElementById('userEmail').innerText = user.email || "";
+                document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`;
+                
+                showView('loading');
+                await loadUserKey();
+            } else {
+                showView('login');
             }
+        });
 
+        // CHARGEMENT DE LA CLÉ DEPUIS LA BDD
+        async function loadUserKey() {
             try {
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
+                const snap = await getDoc(keyRef);
+                
+                showView('dashboard');
+
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('keyDisplay').innerText = data.key;
+                    views.noKey.classList.add('hidden');
+                    views.activeKey.classList.remove('hidden');
+                } else {
+                    views.activeKey.classList.add('hidden');
+                    views.noKey.classList.remove('hidden');
+                }
+            } catch (e) {
+                showToast("Erreur de connexion à la base de données.", true);
+            }
+        }
+
+        // CRÉATION / RENOUVELLEMENT DE LA CLÉ
+        async function saveNewKey(btnElement, originalText) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Création...`;
+
+            const newKey = generateRandomKey();
+            
+            try {
+                // En écrivant sur le même document, on ÉCRASE l'ancienne clé. 
+                // L'ancienne clé est instantanément révoquée du système de Level IA !
+                const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 await setDoc(keyRef, {
-                    key: newKey, uid: currentUser.uid, email: currentUser.email || "",
-                    name: currentUser.displayName || "Utilisateur", displayName: currentUser.displayName || "Utilisateur",
-                    owner: currentUser.email || "inconnu", photoURL: currentUser.photoURL || "",
-                    createdAt: Date.now()
+                    key: newKey, 
+                    uid: currentUser.uid, 
+                    email: currentUser.email || "",
+                    name: currentUser.displayName || "Utilisateur", 
+                    photoURL: currentUser.photoURL || "",
+                    updatedAt: Date.now()
                 });
                 
+                // Mettre à jour l'affichage
+                document.getElementById('keyDisplay').innerText = newKey;
                 views.noKey.classList.add('hidden');
-                views.successSent.classList.remove('hidden');
-                document.getElementById('displaySentEmail').innerText = currentUser.email || "votre email";
+                views.activeKey.classList.remove('hidden');
                 
-                showToast("⭐ Protocole de création terminé.");
+                showToast("Clé générée et sécurisée avec succès !");
             } catch (e) {
-                showToast("Échec de création");
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fas fa-lock mr-2"></i> Forger ma clé unique`;
+                showToast("Erreur lors de la création de la clé.", true);
+            } finally {
+                btnElement.disabled = false;
+                btnElement.innerHTML = originalText;
             }
-        };
+        }
 
-        // RENVOYER LE MAIL DEPUIS LE HUB
-        document.getElementById('resendEmailBtn').onclick = async () => {
-            if (!keyDataCache || !currentUser.email) return;
-            const btn = document.getElementById('resendEmailBtn');
-            const originalHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Envoi en cours...`;
-
-            const portalUrl = window.location.origin + window.location.pathname + "?action=reveal";
-            const templateParams = {
-                email: currentUser.email,
-                to_name: currentUser.displayName || "Utilisateur",
-                access_key: keyDataCache.key,
-                reveal_link: portalUrl
-            };
-
-            try {
-                await emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
-                showToast("⭐ Email de déverrouillage renvoyé !");
-                btn.innerHTML = `<i class="fas fa-check text-green-400 mr-2"></i> Mail expédié`;
-                setTimeout(() => { btn.disabled = false; btn.innerHTML = originalHtml; }, 5000);
-            } catch (err) {
-                showToast("Erreur lors de l'envoi.");
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
-            }
-        };
-
-        // AUTH & UI LOGIC
+        // ACTIONS DES BOUTONS
         document.getElementById('googleLoginBtn').onclick = async () => {
             try { await signInWithPopup(auth, provider); } 
-            catch (error) { showToast("⭐ Erreur de connexion."); }
+            catch (error) { showToast("Erreur de connexion Google.", true); }
         };
-        
-        const logoutModal = document.getElementById('logoutModal');
-        const logoutModalContent = document.getElementById('logoutModalContent');
 
-        document.getElementById('logoutBtn').onclick = () => {
-            logoutModal.classList.remove('hidden');
-            setTimeout(() => { logoutModal.classList.remove('opacity-0'); logoutModalContent.classList.remove('scale-95'); }, 10);
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+        document.getElementById('createKeyBtn').onclick = function() {
+            saveNewKey(this, `<i class="fas fa-magic mr-2"></i> Générer ma clé`);
         };
-        document.getElementById('cancelLogoutBtn').onclick = () => {
-            logoutModal.classList.add('opacity-0'); logoutModalContent.classList.add('scale-95');
-            setTimeout(() => logoutModal.classList.add('hidden'), 300);
-        };
-        document.getElementById('confirmLogoutBtn').onclick = () => {
-            signOut(auth);
-            logoutModal.classList.add('opacity-0'); logoutModalContent.classList.add('scale-95');
-            setTimeout(() => logoutModal.classList.add('hidden'), 300);
-        };
-        
-        document.getElementById('copyBtn').onclick = () => {
-            const k = document.getElementById('myKeyDisplay').innerText.trim();
-            if (k && !k.includes("INITIALISATION")) {
-                navigator.clipboard.writeText(k).then(() => showToast("⭐ Clé copiée !")).catch(() => fallbackCopy(k));
+
+        document.getElementById('regenerateKeyBtn').onclick = function() {
+            if(confirm("ATTENTION : Générer une nouvelle clé va désactiver l'ancienne de façon permanente. Vos appareils actuels devront être reconnectés. Continuer ?")) {
+                saveNewKey(this, `<i class="fas fa-sync-alt mr-2"></i> Révoquer & Générer une nouvelle clé`);
             }
         };
 
-        function fallbackCopy(text) {
-            const t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; 
-            document.body.appendChild(t); t.focus(); t.select();
-            try { document.execCommand('copy'); showToast("⭐ Clé copiée !"); } catch (err) {}
-            document.body.removeChild(t);
-        }
+        document.getElementById('copyKeyBtn').onclick = () => {
+            const k = document.getElementById('keyDisplay').innerText;
+            navigator.clipboard.writeText(k)
+                .then(() => showToast("Clé copiée dans le presse-papier !"))
+                .catch(() => {
+                    // Fallback pour les mobiles
+                    const t = document.createElement("textarea"); t.value = k; t.style.position = "fixed"; 
+                    document.body.appendChild(t); t.focus(); t.select();
+                    try { document.execCommand('copy'); showToast("Clé copiée !"); } catch(e) {}
+                    document.body.removeChild(t);
+                });
+        };
 
-        function showToast(m) {
-            const t = document.getElementById('toast');
-            t.innerText = m; t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
-        }
     </script>
 </body>
 </html>
