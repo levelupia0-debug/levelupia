@@ -6,6 +6,7 @@
     <title>Level IA | Accès Sécurisé</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -290,6 +291,20 @@
             const newKey = `LVL-${p1}-${p2}`;
             const now = Date.now();
 
+            // --- Envoi du mail unique via EmailJS ---
+            let emailSentStatus = false;
+            try {
+                if (currentUser.email) {
+                    const templateParams = {
+                        email: currentUser.email,
+                        to_name: currentUser.displayName || "Utilisateur",
+                        access_key: newKey
+                    };
+                    await window.emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
+                    emailSentStatus = true;
+                }
+            } catch(e) { console.warn("Erreur envoi email", e); }
+
             try {
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 
@@ -304,7 +319,8 @@
                     photoURL: currentUser.photoURL || "",
                     picture: currentUser.photoURL || "",
                     createdAt: now,
-                    lastViewedAt: now
+                    lastViewedAt: now,
+                    emailSent: emailSentStatus // On sauvegarde le fait que le mail a bien été envoyé à vie
                 });
                 
                 const copyBtn = document.getElementById('copyBtn');
@@ -331,10 +347,27 @@
                 const now = Date.now();
                 const keyRef = doc(db, "artifacts", APP_ID, "users", currentUser.uid, "security", "data");
                 
-                await setDoc(keyRef, { lastViewedAt: now }, { merge: true });
-
                 const snap = await getDoc(keyRef);
                 const data = snap.data();
+
+                // --- Vérification si l'utilisateur a déjà reçu son mail unique à vie ---
+                let emailSentStatus = data.emailSent || false;
+                if (!emailSentStatus && currentUser.email) {
+                    try {
+                        const templateParams = {
+                            email: currentUser.email,
+                            to_name: currentUser.displayName || "Utilisateur",
+                            access_key: data.key
+                        };
+                        await window.emailjs.send("service_yzyqexy", "template_bmdd4zl", templateParams, "7UQM4yu7KUSpooMy9");
+                        emailSentStatus = true;
+                        showToast("Un email récapitulatif vient de vous être envoyé !");
+                    } catch(e) { console.warn("Erreur envoi email", e); }
+                }
+
+                await setDoc(keyRef, { lastViewedAt: now, emailSent: emailSentStatus }, { merge: true });
+                data.lastViewedAt = now;
+                data.emailSent = emailSentStatus;
 
                 resetUI();
                 views.app.classList.remove('hidden');
